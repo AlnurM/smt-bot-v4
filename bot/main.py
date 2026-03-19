@@ -15,6 +15,8 @@ from bot.scheduler.setup import create_scheduler
 from bot.strategy.manager import run_strategy_scan, run_expiry_check
 from bot.telegram.middleware import AllowedChatMiddleware
 from bot.telegram.handlers.commands import router as commands_router
+from bot.telegram.handlers.callbacks import router as callbacks_router
+from bot.telegram.handlers.settings import router as settings_router
 from apscheduler.triggers.cron import CronTrigger
 
 
@@ -218,6 +220,10 @@ async def main() -> None:
     dp.update.middleware(AllowedChatMiddleware(settings.allowed_chat_id))
     # Register command router
     dp.include_router(commands_router)
+    # Register callback router (TG-03, TG-04: Confirm, Reject, Pine Script inline buttons)
+    dp.include_router(callbacks_router)
+    # Register settings router (TG-07, TG-08, TG-16: /risk, /criteria, /settings)
+    dp.include_router(settings_router)
     # Inject workflow data — available in all handlers via data["key"]
     dp["bot"] = bot
     dp["session_factory"] = SessionLocal
