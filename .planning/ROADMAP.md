@@ -85,12 +85,12 @@ Plans:
   3. Tapping Confirm marks the signal as pending in DB atomically and removes the inline keyboard; a second tap on the same message has no effect
   4. All `/risk`, `/criteria`, `/settings`, `/pause`, `/resume` commands read from and write to the DB config table — changes persist across restarts
   5. `/status`, `/positions`, `/history`, `/signals`, `/strategies`, and `/skipped` commands return non-empty, accurate data when records exist
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: aiogram 3.x bot skeleton, single-user middleware, `/start` `/help` `/status` basic commands
-- [ ] 04-02: Signal message dispatch (chart PNG send, inline keyboard, confirm/reject callbacks, DB unique constraint, keyboard removal)
-- [ ] 04-03: Settings and query commands (/risk, /criteria, /settings, /strategies, /signals, /positions, /history, /skipped, /scan, /chart, /pause, /resume)
+- [ ] 04-01-PLAN.md — DB migration (telegram_message_id + caption on signals), AllowedChatMiddleware, SignalAction callbacks, notification helpers (send_error_alert, 80% warning, all-coins-skipped), all 14 query/control command handlers, main.py wiring
+- [ ] 04-02-PLAN.md — Signal dispatch (send_signal_message with chart PNG + keyboard, signal caption formatter, schedule_signal_expiry, expire_signal_job), Confirm/Reject/Pine callback handlers with double-tap idempotency (SELECT FOR UPDATE)
+- [ ] 04-03-PLAN.md — /risk, /criteria, /settings handlers (view/modify with validation, reset to defaults, alias mapping, drawdown negation, progressive special case)
 
 ### Phase 5: Order Execution and Position Monitoring
 **Goal**: A confirmed trade signal results in an isolated-margin market order on Binance Futures with bracket SL/TP, followed by real-time monitoring and a Telegram notification when the position closes
