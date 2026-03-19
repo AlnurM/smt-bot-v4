@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-00-PLAN.md (Wave-0 foundation)
-last_updated: "2026-03-19T13:03:18.193Z"
+stopped_at: Completed 02-02-PLAN.md (Claude Strategy Engine)
+last_updated: "2026-03-19T13:11:11.839Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 6
   percent: 0
 ---
 
@@ -54,6 +54,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P02 | 7 | 2 tasks | 7 files |
 | Phase 01-foundation P03 | 525384 | 2 tasks | 8 files |
 | Phase 02-strategy-pipeline P00 | 5 | 2 tasks | 7 files |
+| Phase 02-strategy-pipeline P01 | 4 | 1 tasks | 2 files |
+| Phase 02-strategy-pipeline P02 | 4 | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -77,6 +79,11 @@ Recent decisions affecting current work:
 - [Phase 02-strategy-pipeline]: pytest.importorskip at module level for RED-state stubs — entire module skipped until production module exists, avoiding ImportError noise
 - [Phase 02-strategy-pipeline]: anthropic_api_key placed after database_url in Settings — groups all required SecretStr fields before optional fields
 - [Phase 02-strategy-pipeline]: coin_whitelist defaults to 15 hardcoded coins — overridable via COIN_WHITELIST env var per SettingsConfigDict config
+- [Phase 02-strategy-pipeline]: MIN_HISTORY_CANDLES check logs warning but returns data to caller — fetch_ohlcv_15m is pure fetch; callers own skip logic
+- [Phase 02-strategy-pipeline]: pandas installed in .venv (was missing despite requirements.txt)
+- [Phase 02-strategy-pipeline]: StrategySchema extra='ignore': Claude may return extra fields — silently drop rather than reject valid strategies
+- [Phase 02-strategy-pipeline]: Single retry with fresh API call on StrategySchemaError — no multi-turn conversation to avoid confusing Claude
+- [Phase 02-strategy-pipeline]: asyncio.timeout() used over asyncio.wait_for() — cleaner syntax, compatible with Python 3.12+
 
 ### Pending Todos
 
@@ -90,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T13:03:18.190Z
-Stopped at: Completed 02-00-PLAN.md (Wave-0 foundation)
+Last session: 2026-03-19T13:11:11.837Z
+Stopped at: Completed 02-02-PLAN.md (Claude Strategy Engine)
 Resume file: None
