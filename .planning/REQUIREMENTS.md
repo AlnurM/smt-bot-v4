@@ -7,14 +7,14 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: System connects to Binance Futures Testnet or Production based on single env variable (`BINANCE_ENV`)
+- [x] **INFRA-01**: System connects to Binance Futures Testnet or Production based on single env variable (`BINANCE_ENV`)
 - [x] **INFRA-02**: All API keys stored in `.env` file, never in code or version control
 - [x] **INFRA-03**: PostgreSQL database with all required tables created via Alembic migrations
-- [ ] **INFRA-04**: APScheduler runs hourly market scan and scheduled jobs without drift or missed triggers
+- [x] **INFRA-04**: APScheduler runs hourly market scan and scheduled jobs without drift or missed triggers
 - [x] **INFRA-05**: Application runs as single async process (asyncio event loop with aiogram + APScheduler + asyncpg)
 - [x] **INFRA-06**: Docker Compose configuration for local development (app + PostgreSQL)
-- [ ] **INFRA-07**: Graceful shutdown — open positions synced, scheduler stopped cleanly
-- [ ] **INFRA-08**: On restart, bot loads open positions from Binance API and syncs with DB
+- [x] **INFRA-07**: Graceful shutdown — open positions synced, scheduler stopped cleanly
+- [x] **INFRA-08**: On restart, bot loads open positions from Binance API and syncs with DB
 
 ### Market Scanner
 
@@ -176,14 +176,14 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
-| INFRA-04 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Complete |
 | INFRA-05 | Phase 1 | Complete |
 | INFRA-06 | Phase 1 | Complete |
-| INFRA-07 | Phase 1 | Pending |
-| INFRA-08 | Phase 1 | Pending |
+| INFRA-07 | Phase 1 | Complete |
+| INFRA-08 | Phase 1 | Complete |
 | SCAN-01 | Phase 2 | Pending |
 | SCAN-02 | Phase 2 | Pending |
 | SCAN-03 | Phase 2 | Pending |

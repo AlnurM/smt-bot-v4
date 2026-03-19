@@ -12,7 +12,7 @@ Six phases take the project from zero to a production-ready semi-automated tradi
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Docker stack, PostgreSQL, Alembic, Binance client, async app skeleton
+- [x] **Phase 1: Foundation** - Docker stack, PostgreSQL, Alembic, Binance client, async app skeleton (completed 2026-03-19)
 - [ ] **Phase 2: Strategy Pipeline** - Market Scanner, Claude strategy generation, filter, lifecycle management
 - [ ] **Phase 3: Signal and Risk** - SMC + MACD/RSI signal generation, risk manager, chart generator
 - [ ] **Phase 4: Telegram Interface** - Full Telegram bot, signal dispatch, confirm/reject flow, settings commands
@@ -128,7 +128,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/3 | In Progress|  |
+| 1. Foundation | 3/3 | Complete   | 2026-03-19 |
 | 2. Strategy Pipeline | 0/3 | Not started | - |
 | 3. Signal and Risk | 0/3 | Not started | - |
 | 4. Telegram Interface | 0/3 | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-foundation-02-PLAN.md
-last_updated: "2026-03-19T11:14:05.459Z"
+stopped_at: Completed 01-foundation-03-PLAN.md (Tasks 1-2; Task 3 awaits human verification)
+last_updated: "2026-03-19T11:24:09.138Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 3 | 1 tasks | 17 files |
 | Phase 01-foundation P02 | 7 | 2 tasks | 7 files |
+| Phase 01-foundation P03 | 525384 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: postgres:16 pinned in docker-compose.yml — ensures gen_random_uuid() built-in, no pgcrypto needed
 - [Phase 01-foundation]: json.dumps() required for JSONB list seed values in Alembic op.bulk_insert — asyncpg cannot encode raw Python list as JSONB bind parameter
 - [Phase 01-foundation]: greenlet added to requirements.txt — SQLAlchemy 2.0 asyncpg dialect requires it for sync-in-async bridging during migrations
+- [Phase 01-foundation]: APScheduler not started at import time — create_scheduler() returns instance only; scheduler.start() called in main() after event loop is running
+- [Phase 01-foundation]: startup_position_sync() is non-fatal — position sync failure logged as warning, bot continues startup regardless
+- [Phase 01-foundation]: loguru caplog incompatibility — log capture in tests uses logger.add() custom sink, not pytest caplog
 
 ### Pending Todos
 
@@ -82,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T11:14:05.456Z
-Stopped at: Completed 01-foundation-02-PLAN.md
+Last session: 2026-03-19T11:24:02.256Z
+Stopped at: Completed 01-foundation-03-PLAN.md (Tasks 1-2; Task 3 awaits human verification)
 Resume file: None
