@@ -49,37 +49,37 @@
 
 ### Signal Generation
 
-- [ ] **SIG-01**: Signal Generator applies active strategy to current OHLCV data and detects entry conditions
-- [ ] **SIG-02**: SMC analysis: identifies Order Blocks, Fair Value Gaps, Break of Structure, Change of Character
-- [ ] **SIG-03**: Indicator analysis: MACD crossovers, RSI oversold/overbought exits
-- [ ] **SIG-04**: Higher timeframe confirmation (e.g., 4h BOS/CHOCH) required before signal emission
-- [ ] **SIG-05**: Volume confirmation: volume must exceed average by configurable multiplier
-- [ ] **SIG-06**: Signal includes: direction (long/short), entry price, stop loss, take profit, R/R ratio, signal strength, reasoning text
+- [x] **SIG-01**: Signal Generator applies active strategy to current OHLCV data and detects entry conditions
+- [x] **SIG-02**: SMC analysis: identifies Order Blocks, Fair Value Gaps, Break of Structure, Change of Character
+- [x] **SIG-03**: Indicator analysis: MACD crossovers, RSI oversold/overbought exits
+- [x] **SIG-04**: Higher timeframe confirmation (e.g., 4h BOS/CHOCH) required before signal emission
+- [x] **SIG-05**: Volume confirmation: volume must exceed average by configurable multiplier
+- [x] **SIG-06**: Signal includes: direction (long/short), entry price, stop loss, take profit, R/R ratio, signal strength, reasoning text
 
 ### Risk Management
 
-- [ ] **RISK-01**: Position size calculated as percentage of current balance, divided by SL distance, multiplied by leverage
-- [ ] **RISK-02**: Progressive stakes: configurable tiers (default 3→5→8%) based on consecutive win count
-- [ ] **RISK-03**: Win streak resets to base stake on any loss
-- [ ] **RISK-04**: Maximum open positions limit (default: 5) enforced before new order
-- [ ] **RISK-05**: Daily loss limit (default: 5%) — trading paused when reached, notification sent
-- [ ] **RISK-06**: Minimum R/R ratio filter — signals below threshold ignored
+- [x] **RISK-01**: Position size calculated as percentage of current balance, divided by SL distance, multiplied by leverage
+- [x] **RISK-02**: Progressive stakes: configurable tiers (default 3→5→8%) based on consecutive win count
+- [x] **RISK-03**: Win streak resets to base stake on any loss
+- [x] **RISK-04**: Maximum open positions limit (default: 5) enforced before new order
+- [x] **RISK-05**: Daily loss limit (default: 5%) — trading paused when reached, notification sent
+- [x] **RISK-06**: Minimum R/R ratio filter — signals below threshold ignored
 - [ ] **RISK-07**: Isolated margin enforced on every position
-- [ ] **RISK-08**: MIN_NOTIONAL check before order submission — reject if position too small
-- [ ] **RISK-09**: Liquidation price calculated and validated before every order
+- [x] **RISK-08**: MIN_NOTIONAL check before order submission — reject if position too small
+- [x] **RISK-09**: Liquidation price calculated and validated before every order
 - [ ] **RISK-10**: All risk parameters adjustable via Telegram `/risk` command
 
 ### Chart Generation
 
-- [ ] **CHART-01**: PNG chart with candlestick data (last 100-150 bars) generated per signal
-- [ ] **CHART-02**: Chart shows Order Block zones (green=demand, red=supply rectangles)
+- [x] **CHART-01**: PNG chart with candlestick data (last 100-150 bars) generated per signal
+- [x] **CHART-02**: Chart shows Order Block zones (green=demand, red=supply rectangles)
 - [ ] **CHART-03**: Chart shows Fair Value Gap zones (transparent rectangles with dashed borders)
 - [ ] **CHART-04**: Chart shows BOS/CHOCH levels (horizontal lines with labels)
-- [ ] **CHART-05**: Chart shows entry (blue dashed), stop loss (red solid), take profit (green solid) lines
+- [x] **CHART-05**: Chart shows entry (blue dashed), stop loss (red solid), take profit (green solid) lines
 - [ ] **CHART-06**: Chart includes MACD panel (histogram + lines, crossover point marked)
 - [ ] **CHART-07**: Chart includes RSI panel (30/70 levels, signal zone highlighted)
 - [ ] **CHART-08**: Chart title shows symbol, timeframe, direction, R/R ratio
-- [ ] **CHART-09**: Chart rendered to BytesIO (no disk I/O) at 150 DPI
+- [x] **CHART-09**: Chart rendered to BytesIO (no disk I/O) at 150 DPI
 
 ### Pine Script
 
@@ -203,31 +203,31 @@
 | LIFE-03 | Phase 2 | Complete |
 | LIFE-04 | Phase 2 | Complete |
 | LIFE-05 | Phase 2 | Complete |
-| SIG-01 | Phase 3 | Pending |
-| SIG-02 | Phase 3 | Pending |
-| SIG-03 | Phase 3 | Pending |
-| SIG-04 | Phase 3 | Pending |
-| SIG-05 | Phase 3 | Pending |
-| SIG-06 | Phase 3 | Pending |
-| RISK-01 | Phase 3 | Pending |
-| RISK-02 | Phase 3 | Pending |
-| RISK-03 | Phase 3 | Pending |
-| RISK-04 | Phase 3 | Pending |
-| RISK-05 | Phase 3 | Pending |
-| RISK-06 | Phase 3 | Pending |
+| SIG-01 | Phase 3 | Complete |
+| SIG-02 | Phase 3 | Complete |
+| SIG-03 | Phase 3 | Complete |
+| SIG-04 | Phase 3 | Complete |
+| SIG-05 | Phase 3 | Complete |
+| SIG-06 | Phase 3 | Complete |
+| RISK-01 | Phase 3 | Complete |
+| RISK-02 | Phase 3 | Complete |
+| RISK-03 | Phase 3 | Complete |
+| RISK-04 | Phase 3 | Complete |
+| RISK-05 | Phase 3 | Complete |
+| RISK-06 | Phase 3 | Complete |
 | RISK-07 | Phase 3 | Pending |
-| RISK-08 | Phase 3 | Pending |
-| RISK-09 | Phase 3 | Pending |
+| RISK-08 | Phase 3 | Complete |
+| RISK-09 | Phase 3 | Complete |
 | RISK-10 | Phase 3 | Pending |
-| CHART-01 | Phase 3 | Pending |
-| CHART-02 | Phase 3 | Pending |
+| CHART-01 | Phase 3 | Complete |
+| CHART-02 | Phase 3 | Complete |
 | CHART-03 | Phase 3 | Pending |
 | CHART-04 | Phase 3 | Pending |
-| CHART-05 | Phase 3 | Pending |
+| CHART-05 | Phase 3 | Complete |
 | CHART-06 | Phase 3 | Pending |
 | CHART-07 | Phase 3 | Pending |
 | CHART-08 | Phase 3 | Pending |
-| CHART-09 | Phase 3 | Pending |
+| CHART-09 | Phase 3 | Complete |
 | TG-01 | Phase 4 | Pending |
 | TG-02 | Phase 4 | Pending |
 | TG-03 | Phase 4 | Pending |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 3 context gathered
-last_updated: "2026-03-19T14:07:46.470Z"
+stopped_at: Completed 03-signal-and-risk-00-PLAN.md
+last_updated: "2026-03-19T14:54:26.527Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 12
+  completed_plans: 8
   percent: 0
 ---
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-strategy-pipeline P01 | 4 | 1 tasks | 2 files |
 | Phase 02-strategy-pipeline P02 | 4 | 1 tasks | 3 files |
 | Phase 02-strategy-pipeline P03 | 4 | 2 tasks | 3 files |
+| Phase 03-signal-and-risk P00 | 12 | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 02-strategy-pipeline]: filter_strategy is a pure stateless function — relaxed mode checks only total_return_pct + max_drawdown_pct; strict mode checks all 6 criteria
 - [Phase 02-strategy-pipeline]: run_expiry_check logs only — never deactivates; save_strategy owns the atomic deactivate+insert to prevent coverage gaps
 - [Phase 02-strategy-pipeline]: backtest_score = profit_factor * win_rate stored for ranking/analytics on every Strategy row
+- [Phase 03-signal-and-risk]: OHLCV fixture uses numpy seed=42 random walk — deterministic across all environments, no network calls needed in tests
+- [Phase 03-signal-and-risk]: pytest.importorskip at module level for Phase 3 RED-state test stubs — entire file skips until production module exists, cleaner than per-function skips
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T14:07:46.467Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-signal-and-risk/03-CONTEXT.md
+Last session: 2026-03-19T14:54:26.523Z
+Stopped at: Completed 03-signal-and-risk-00-PLAN.md
+Resume file: None
