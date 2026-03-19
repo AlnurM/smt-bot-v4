@@ -34,9 +34,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project scaffold, Docker Compose, pydantic-settings config, loguru, pytest Wave 0 infrastructure
-- [ ] 01-02-PLAN.md — All 10 SQLAlchemy ORM models, async session factory, Alembic initial migration with seed data
-- [ ] 01-03-PLAN.md — Binance client wrapper (testnet/production switch), APScheduler, main.py startup sequence, graceful shutdown, position sync
+- [x] 01-01-PLAN.md — Project scaffold, Docker Compose, pydantic-settings config, loguru, pytest Wave 0 infrastructure
+- [x] 01-02-PLAN.md — All 10 SQLAlchemy ORM models, async session factory, Alembic initial migration with seed data
+- [x] 01-03-PLAN.md — Binance client wrapper (testnet/production switch), APScheduler, main.py startup sequence, graceful shutdown, position sync
 
 ### Phase 2: Strategy Pipeline
 **Goal**: The bot can autonomously discover tradeable coins, generate a non-overfit SMC+MACD/RSI strategy via Claude, validate it against configurable criteria, and store versioned strategies in PostgreSQL

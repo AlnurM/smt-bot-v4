@@ -67,7 +67,7 @@ completed: 2026-03-19
 - **Duration:** ~45 min
 - **Started:** 2026-03-19T16:00:00Z
 - **Completed:** 2026-03-19T16:45:00Z
-- **Tasks:** 2 of 3 (Task 3 is human-verify checkpoint)
+- **Tasks:** 3 of 3 (Task 3 Docker Compose smoke test approved by user)
 - **Files modified:** 8
 
 ## Accomplishments
@@ -84,8 +84,9 @@ Each task was committed atomically:
 
 1. **Task 1: BinanceClient wrapper and APScheduler factory** - `bc19226` (feat)
 2. **Task 2: main.py startup sequence, position sync, graceful shutdown** - `24d97b3` (feat)
+3. **Task 3: Docker Compose smoke test** - Human-verify checkpoint approved by user (no code commit — verification only)
 
-_Task 3 is a human-verify checkpoint — Docker Compose smoke test requires user action._
+**Plan metadata:** `a9ca671` (docs: complete runtime wiring plan)
 
 ## Files Created/Modified
 
@@ -157,8 +158,12 @@ None — this plan wires existing credentials from `.env` (set up in plan 01-01)
 ## Next Phase Readiness
 
 - All INFRA requirements (01, 04, 05, 07, 08) implemented and unit-tested
-- Docker Compose smoke test (Task 3) requires user action: set up `.env` with real credentials and run `docker compose up --build`
-- Once Task 3 checkpoint is approved, Phase 1 is complete and Phase 2 (Market Scanner) can begin
+- Task 3 Docker Compose smoke test approved by user — all 4 acceptance criteria confirmed met:
+  - All 7 startup log lines appeared in order (DB connected, migrations current, Binance connected, Telegram connected, position sync complete, scheduler started, polling started)
+  - Telegram "Bot started" message received
+  - Clean SIGTERM shutdown with "Shutdown complete" and no exceptions
+  - Clean restart works without "another instance running" errors
+- Phase 1 is complete — Phase 2 (Market Scanner) can begin
 - Phase 2 will call `create_scheduler()` and register cron jobs — the scheduler factory is ready
 
 ---
