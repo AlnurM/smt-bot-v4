@@ -31,12 +31,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Bot connects to Binance Futures Testnet when `BINANCE_ENV=testnet` and to Production when set to `production` — confirmed by logging the active endpoint on startup
   4. APScheduler fires a test job on schedule with no drift after 3+ cycles
   5. On `SIGTERM`, open scheduler jobs stop cleanly and a "shutdown complete" log line appears with no exceptions
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Project scaffold, Docker Compose, pydantic-settings config validation, loguru logging
-- [ ] 01-02: PostgreSQL + SQLAlchemy async session factory + Alembic migration baseline (all tables)
-- [ ] 01-03: Binance client wrapper (Testnet/Production switch, env tagging), APScheduler wiring, graceful shutdown, restart position sync
+- [ ] 01-01-PLAN.md — Project scaffold, Docker Compose, pydantic-settings config, loguru, pytest Wave 0 infrastructure
+- [ ] 01-02-PLAN.md — All 10 SQLAlchemy ORM models, async session factory, Alembic initial migration with seed data
+- [ ] 01-03-PLAN.md — Binance client wrapper (testnet/production switch), APScheduler, main.py startup sequence, graceful shutdown, position sync
 
 ### Phase 2: Strategy Pipeline
 **Goal**: The bot can autonomously discover tradeable coins, generate a non-overfit SMC+MACD/RSI strategy via Claude, validate it against configurable criteria, and store versioned strategies in PostgreSQL
@@ -128,7 +128,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Not started | - |
+| 1. Foundation | 1/3 | In Progress|  |
 | 2. Strategy Pipeline | 0/3 | Not started | - |
 | 3. Signal and Risk | 0/3 | Not started | - |
 | 4. Telegram Interface | 0/3 | Not started | - |

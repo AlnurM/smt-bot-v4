@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-03-19T10:37:11.810Z"
-last_activity: 2026-03-19 — Roadmap created, 91 v1 requirements mapped to 6 phases
+status: executing
+stopped_at: Completed 01-foundation-01-PLAN.md
+last_updated: "2026-03-19T11:04:08.629Z"
+last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-03-19 — Roadmap created, 91 v1 requirements mapped to 6 phases
+Plan: 1 of 3 in current phase
+Status: Executing
+Last activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-foundation P01 | 3 | 1 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,9 @@ Recent decisions affecting current work:
 - [Init]: APScheduler 3.11.2 only — 4.x explicitly unsafe per maintainer
 - [Init]: pandas-ta-classic (community fork) — original pandas-ta at risk of archival
 - [Init]: PostgreSQL from day one — no SQLite migration path later
+- [Phase 01-foundation]: SecretStr on all secret fields — pydantic masks in repr/str automatically, no custom logging filter needed
+- [Phase 01-foundation]: Module-level settings = Settings() with sys.exit(1) on ValidationError — fail fast if any required env var missing
+- [Phase 01-foundation]: postgres:16 pinned in docker-compose.yml — ensures gen_random_uuid() built-in, no pgcrypto needed
 
 ### Pending Todos
 
@@ -75,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T10:37:11.807Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-foundation/01-CONTEXT.md
+Last session: 2026-03-19T11:04:08.626Z
+Stopped at: Completed 01-foundation-01-PLAN.md
+Resume file: None
