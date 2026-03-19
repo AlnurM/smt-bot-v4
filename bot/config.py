@@ -18,6 +18,22 @@ class Settings(BaseSettings):
     telegram_bot_token: SecretStr
     database_url: SecretStr  # contains DB password
 
+    # Anthropic API
+    anthropic_api_key: SecretStr
+    claude_model: str = "claude-sonnet-4-20250514"
+
+    # Market Scanner — whitelist of coins approved for scanning
+    # Set COIN_WHITELIST=BTCUSDT,ETHUSDT,... in .env to override
+    coin_whitelist: list[str] = [
+        "BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT",
+        "ADAUSDT", "DOGEUSDT", "AVAXUSDT", "LINKUSDT", "MATICUSDT",
+        "DOTUSDT", "LTCUSDT", "UNIUSDT", "ATOMUSDT", "NEARUSDT",
+    ]
+    # Scanner config
+    top_n_coins: int = 10
+    min_volume_usdt: float = 50_000_000.0
+    consecutive_empty_cycles_alert: int = 3
+
     # Binance environment — drives testnet=True/False in exchange client
     binance_env: Literal["testnet", "production"] = "testnet"
 

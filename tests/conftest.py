@@ -15,7 +15,23 @@ def test_settings():
         database_url=SecretStr("postgresql+asyncpg://ctb:ctb_password@localhost:5432/ctb_test"),
         allowed_chat_id=123456789,
         binance_env="testnet",
+        anthropic_api_key=SecretStr("test_anthropic_key_abc123"),
     )
+
+
+@pytest.fixture
+def sample_criteria():
+    """Plain dict with all strategy criteria fields for use in filter/manager tests."""
+    return {
+        "backtest_period_months": 6,
+        "min_total_return_pct": 200.0,
+        "max_drawdown_pct": -12.0,
+        "min_win_rate_pct": 55.0,
+        "min_profit_factor": 1.8,
+        "min_trades": 30,
+        "min_avg_rr": 2.0,
+        "strict_mode": False,
+    }
 
 
 @pytest.fixture
