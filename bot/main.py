@@ -12,6 +12,8 @@ from bot.db.session import engine, SessionLocal
 from bot.db.models import Position
 from bot.exchange.client import create_binance_client
 from bot.scheduler.setup import create_scheduler
+from bot.strategy.manager import run_strategy_scan, run_expiry_check
+from apscheduler.triggers.cron import CronTrigger
 
 
 async def startup_position_sync(binance_client, session_factory) -> None:
@@ -169,6 +171,26 @@ async def main() -> None:
     scheduler = create_scheduler()
     scheduler.start()
     logger.info("Scheduler started")
+
+    # Register hourly market scan job (SCAN-02)
+    # Strategy generation runs as asyncio.create_task inside run_strategy_scan
+    # so it doesn't block the scheduler's execution window (RESEARCH.md Pitfall 6)
+    scheduler.add_job(
+        lambda: asyncio.create_task(
+            run_strategy_scan(SessionLocal, binance_client, settings)
+        ),
+        trigger=CronTrigger(hour="*", minute="5", timezone="UTC"),
+        id="strategy_scan",
+        replace_existing=True,
+    )
+    # Register daily expiry check job (LIFE-02)
+    scheduler.add_job(
+        lambda: asyncio.create_task(run_expiry_check(SessionLocal)),
+        trigger=CronTrigger(hour="2", minute="0", timezone="UTC"),
+        id="expiry_check",
+        replace_existing=True,
+    )
+    logger.info("APScheduler jobs registered: strategy_scan (hourly :05) + expiry_check (02:00 UTC)")
 
     # --- Step 6: Startup notification ---
     try:
