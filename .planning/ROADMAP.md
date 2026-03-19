@@ -66,12 +66,14 @@ Plans:
   3. Risk Manager rejects any signal where position size would fall below MIN_NOTIONAL or where liquidation price is closer than 2x the SL distance
   4. Progressive stakes advance through configured tiers on win streaks and reset to base on any loss; daily loss circuit breaker halts new signals when the daily limit is reached
   5. Chart Generator produces a PNG BytesIO object with candlesticks, OB/FVG zones, entry/SL/TP lines, MACD panel, and RSI panel within 5 seconds
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 03-01: SMC detector (OB, FVG, BOS, CHOCH) + MACD/RSI indicators via pandas-ta-classic + Signal Generator (higher-TF confirmation, volume confirmation, Signal object)
-- [ ] 03-02: Risk Manager (fixed-% sizing, progressive stakes, daily circuit breaker, liquidation price, MIN_NOTIONAL, isolated margin, all params via /risk)
-- [ ] 03-03: Chart Generator (mplfinance PNG in thread pool, OB/FVG zones, entry/SL/TP lines, MACD/RSI panels, BytesIO output)
+- [ ] 03-00-PLAN.md — Wave 0: requirements.txt additions (pandas-ta-classic, mplfinance), OHLCV fixture, 5 RED test scaffolds
+- [ ] 03-01-PLAN.md — SMC detector (OrderBlock, FVG, BOS/CHOCH dataclasses + pure detection functions) + MACD/RSI indicator wrappers
+- [ ] 03-02-PLAN.md — Signal Generator (orchestrates SMC + indicators + 4h HTF confirmation + volume + scoring → Signal dict)
+- [ ] 03-03-PLAN.md — Risk Manager (position sizing formula, progressive stakes, daily circuit breaker, liquidation safety, MIN_NOTIONAL, update_risk_settings)
+- [ ] 03-04-PLAN.md — Chart Generator (mplfinance multi-panel PNG, OB/FVG rectangles, BOS/CHOCH lines, entry/SL/TP lines, asyncio.to_thread, BytesIO 200 DPI)
 
 ### Phase 4: Telegram Interface
 **Goal**: The trader can receive signal messages with chart images, confirm or reject trades via inline buttons, and manage all bot settings through Telegram commands — with single-user security enforced on every interaction
@@ -131,7 +133,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-19 |
 | 2. Strategy Pipeline | 4/4 | Complete   | 2026-03-19 |
-| 3. Signal and Risk | 0/3 | Not started | - |
+| 3. Signal and Risk | 0/5 | Not started | - |
 | 4. Telegram Interface | 0/3 | Not started | - |
 | 5. Order Execution and Position Monitoring | 0/2 | Not started | - |
 | 6. Reporting and Audit | 0/3 | Not started | - |
