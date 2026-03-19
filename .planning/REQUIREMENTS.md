@@ -95,8 +95,8 @@
 - [ ] **TG-04**: Reject button optionally captures free-text reason
 - [x] **TG-05**: `/start` — system status, current stake, deposit balance
 - [x] **TG-06**: `/status` — balance, open positions, daily PnL, current streak/stake
-- [ ] **TG-07**: `/risk` — view and modify all risk parameters
-- [ ] **TG-08**: `/criteria` — view and modify strategy filter criteria
+- [x] **TG-07**: `/risk` — view and modify all risk parameters
+- [x] **TG-08**: `/criteria` — view and modify strategy filter criteria
 - [x] **TG-09**: `/signals` — last 10 signals (accepted/rejected with reasons)
 - [x] **TG-10**: `/positions` — open positions with current PnL
 - [x] **TG-11**: `/history` — last 20 closed trades
@@ -104,7 +104,7 @@
 - [x] **TG-13**: `/skipped` — coins skipped due to criteria (with time filters, per-coin history)
 - [x] **TG-14**: `/scan` — trigger manual market scan
 - [x] **TG-15**: `/chart SYMBOL` — get Pine Script for last signal
-- [ ] **TG-16**: `/settings` — general settings (top-N, timeframes, review interval)
+- [x] **TG-16**: `/settings` — general settings (top-N, timeframes, review interval)
 - [x] **TG-17**: `/pause` and `/resume` — pause/resume signal generation
 - [x] **TG-18**: `/help` — full command reference
 - [ ] **TG-19**: Daily summary at 21:00 — PnL, trades, win rate, current stake
@@ -234,8 +234,8 @@
 | TG-04 | Phase 4 | Pending |
 | TG-05 | Phase 4 | Complete |
 | TG-06 | Phase 4 | Complete |
-| TG-07 | Phase 4 | Pending |
-| TG-08 | Phase 4 | Pending |
+| TG-07 | Phase 4 | Complete |
+| TG-08 | Phase 4 | Complete |
 | TG-09 | Phase 4 | Complete |
 | TG-10 | Phase 4 | Complete |
 | TG-11 | Phase 4 | Complete |
@@ -243,7 +243,7 @@
 | TG-13 | Phase 4 | Complete |
 | TG-14 | Phase 4 | Complete |
 | TG-15 | Phase 4 | Complete |
-| TG-16 | Phase 4 | Pending |
+| TG-16 | Phase 4 | Complete |
 | TG-17 | Phase 4 | Complete |
 | TG-18 | Phase 4 | Complete |
 | TG-20 | Phase 4 | Complete |

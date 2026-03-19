@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-19T19:19:15.611Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-03-19T19:25:51.727Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
   percent: 0
 ---
 
@@ -63,6 +63,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-signal-and-risk P03 | 6 | 1 tasks | 2 files |
 | Phase 03-signal-and-risk P04 | 6 | 1 tasks | 2 files |
 | Phase 04-telegram-interface P01 | 7 | 3 tasks | 13 files |
+| Phase 04-telegram-interface P03 | 251 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,9 @@ Recent decisions affecting current work:
 - [Phase 04-telegram-interface]: _bot_state module-level dict in commands.py shared with Plan 02 dispatch — avoids Dispatcher workflow_data mutation complexity
 - [Phase 04-telegram-interface]: AllowedChatMiddleware on dp.update covers all update types with single registration point
 - [Phase 04-telegram-interface]: Signal dispatch block in run_strategy_scan uses lazy guarded imports for bot.telegram.dispatch — safe no-op until Plan 02 creates dispatch.py
+- [Phase 04-telegram-interface]: RISK_ALIASES and CRITERIA_ALIASES dispatch tables route alias to (db_field, type, min, max) — single validation path for all numeric /risk and /criteria subcommands
+- [Phase 04-telegram-interface]: /criteria drawdown negation: user inputs positive, handler stores -abs(value) — max_drawdown_pct always negative in DB
+- [Phase 04-telegram-interface]: /settings top_n in-memory only (settings.top_n_coins = new_value) — restart warning shown; CONTEXT.md locked decision
 
 ### Pending Todos
 
@@ -123,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T19:19:15.606Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-03-19T19:25:51.724Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
