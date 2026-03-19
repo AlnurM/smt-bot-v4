@@ -154,6 +154,8 @@ async def run_strategy_scan(
     session_factory,
     binance_client,
     settings,
+    bot=None,       # NEW: Bot instance for Telegram alerts (Phase 4)
+    scheduler=None, # NEW: APScheduler instance for signal expiry scheduling (Phase 4)
 ) -> None:
     """Hourly APScheduler job: scan whitelist, generate strategies for coins that need them.
 
@@ -211,6 +213,16 @@ async def run_strategy_scan(
                     f"ALERT: {_consecutive_empty_cycles} consecutive scan cycles with no strategy generation needed. "
                     f"Consider loosening criteria."
                 )
+                if bot is not None:
+                    from bot.telegram.notifications import send_skipped_coins_alert
+                    asyncio.create_task(
+                        send_skipped_coins_alert(
+                            bot,
+                            settings.allowed_chat_id,
+                            _consecutive_empty_cycles,
+                            settings.consecutive_empty_cycles_alert,
+                        )
+                    )
             return
 
         _consecutive_empty_cycles = 0  # reset on any activity
@@ -241,6 +253,77 @@ async def run_strategy_scan(
                 if filter_result.passed:
                     await save_strategy(session, symbol, strategy_data, criteria_snapshot)
                     logger.info(f"Strategy saved for {symbol}")
+
+                    # Signal dispatch wiring (TG-02 key link — Phase 4)
+                    # After strategy is saved, generate and dispatch a signal if bot is available.
+                    # bot/telegram/dispatch module is created in Plan 02.
+                    if bot is not None:
+                        from bot.signals.generator import generate_signal
+                        from bot.charts.generator import generate_chart
+                        from bot.risk.manager import calculate_position_size
+                        from bot.db.models import RiskSettings as RiskSettingsModel, Signal as SignalModel
+
+                        MIN_NOTIONAL_USDT = 5.0
+
+                        risk_result = await session.execute(
+                            select(RiskSettingsModel).limit(1)
+                        )
+                        risk_settings = risk_result.scalars().first()
+
+                        signal = await generate_signal(
+                            binance_client, symbol, strategy_data, ohlcv_df
+                        )
+                        if signal is not None:
+                            from bot.telegram.dispatch import send_signal_message, schedule_signal_expiry
+                            chart_bytes = await generate_chart(
+                                ohlcv_df, signal, signal.get("zones", {})
+                            )
+                            leverage = risk_settings.leverage if risk_settings else 5
+                            balance_info = await binance_client.futures_account()
+                            balance = float(balance_info.get("totalWalletBalance", 0))
+                            stake_pct = risk_settings.current_stake_pct if risk_settings else 3.0
+                            position_size = calculate_position_size(
+                                balance=balance,
+                                current_stake_pct=stake_pct,
+                                entry_price=signal["entry_price"],
+                                stop_loss=signal["stop_loss"],
+                                leverage=leverage,
+                            )
+                            position_size["stake_pct"] = stake_pct
+                            is_min_notional = (
+                                position_size.get("contracts", 0) * signal["entry_price"]
+                                < MIN_NOTIONAL_USDT
+                            )
+                            message_id = await send_signal_message(
+                                bot,
+                                settings.allowed_chat_id,
+                                signal,
+                                chart_bytes,
+                                position_size,
+                                is_min_notional=is_min_notional,
+                            )
+                            if message_id != -1:
+                                # Persist telegram_message_id to Signal DB row
+                                db_signal_result = await session.execute(
+                                    select(SignalModel).order_by(
+                                        SignalModel.created_at.desc()
+                                    ).limit(1)
+                                )
+                                db_signal = db_signal_result.scalars().first()
+                                if db_signal is not None:
+                                    db_signal.telegram_message_id = message_id
+                                    await session.commit()
+                                    schedule_signal_expiry(
+                                        scheduler,
+                                        bot,
+                                        settings.allowed_chat_id,
+                                        message_id,
+                                        str(db_signal.id),
+                                        session_factory,
+                                        timeout_minutes=getattr(
+                                            settings, "signal_expiry_minutes", 15
+                                        ),
+                                    )
                 else:
                     await log_skipped_coin(session, symbol, strategy_data, filter_result)
 
@@ -249,7 +332,16 @@ async def run_strategy_scan(
                     f"Claude API error for {symbol}: {e}. "
                     f"Stopping scan cycle — will retry in next cycle."
                 )
-                # TODO: send Telegram alert (Phase 4 wires this)
+                if bot is not None:
+                    from bot.telegram.notifications import send_error_alert
+                    asyncio.create_task(
+                        send_error_alert(
+                            bot,
+                            settings.allowed_chat_id,
+                            "claude_api_error",
+                            str(e),
+                        )
+                    )
                 break
             except StrategySchemaError as e:
                 logger.error(f"Strategy schema error for {symbol}: {e}. Skipping coin.")

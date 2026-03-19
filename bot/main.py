@@ -13,6 +13,8 @@ from bot.db.models import Position
 from bot.exchange.client import create_binance_client
 from bot.scheduler.setup import create_scheduler
 from bot.strategy.manager import run_strategy_scan, run_expiry_check
+from bot.telegram.middleware import AllowedChatMiddleware
+from bot.telegram.handlers.commands import router as commands_router
 from apscheduler.triggers.cron import CronTrigger
 
 
@@ -177,7 +179,7 @@ async def main() -> None:
     # so it doesn't block the scheduler's execution window (RESEARCH.md Pitfall 6)
     scheduler.add_job(
         lambda: asyncio.create_task(
-            run_strategy_scan(SessionLocal, binance_client, settings)
+            run_strategy_scan(SessionLocal, binance_client, settings, bot, scheduler)
         ),
         trigger=CronTrigger(hour="*", minute="5", timezone="UTC"),
         id="strategy_scan",
@@ -211,6 +213,18 @@ async def main() -> None:
 
     # --- Step 7: Signal handlers + Telegram polling (blocks until shutdown) ---
     dp = Dispatcher()
+
+    # Wire AllowedChatMiddleware (TG-01) — drop all non-allowed chat_ids before any handler fires
+    dp.update.middleware(AllowedChatMiddleware(settings.allowed_chat_id))
+    # Register command router
+    dp.include_router(commands_router)
+    # Inject workflow data — available in all handlers via data["key"]
+    dp["bot"] = bot
+    dp["session_factory"] = SessionLocal
+    dp["scheduler"] = scheduler
+    dp["binance_client"] = binance_client
+    dp["settings"] = settings
+
     shutdown_event = asyncio.Event()
 
     async def on_shutdown():
