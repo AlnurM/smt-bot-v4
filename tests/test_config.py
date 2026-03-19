@@ -13,9 +13,10 @@ class TestSecretMasking:
         assert "test_binance_key_abc123" not in key_str
         assert "**" in key_repr or "SecretStr" in key_repr
 
-    def test_missing_required_var(self):
+    def test_missing_required_var(self, monkeypatch):
         """Missing BINANCE_API_KEY must raise ValidationError."""
         from bot.config import Settings
+        monkeypatch.delenv("BINANCE_API_KEY", raising=False)
         with pytest.raises(ValidationError) as exc_info:
             Settings(
                 binance_api_secret=SecretStr("secret"),
