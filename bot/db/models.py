@@ -160,6 +160,8 @@ class Signal(Base):
     status: Mapped[str] = mapped_column(
         String(20), server_default=text("'pending'"), nullable=False
     )
+    telegram_message_id: Mapped[Optional[int]] = mapped_column(sa.Integer, nullable=True)
+    caption: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False
     )
