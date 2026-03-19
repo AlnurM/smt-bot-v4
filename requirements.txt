@@ -2,6 +2,7 @@ pydantic-settings==2.13.1
 python-dotenv
 loguru
 sqlalchemy==2.0.48
+greenlet
 asyncpg==0.31.0
 alembic==1.18.4
 python-binance==1.0.35
