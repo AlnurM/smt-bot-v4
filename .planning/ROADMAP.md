@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Docker stack, PostgreSQL, Alembic, Binance client, async app skeleton (completed 2026-03-19)
 - [x] **Phase 2: Strategy Pipeline** - Market Scanner, Claude strategy generation, filter, lifecycle management (completed 2026-03-19)
-- [ ] **Phase 3: Signal and Risk** - SMC + MACD/RSI signal generation, risk manager, chart generator
+- [x] **Phase 3: Signal and Risk** - SMC + MACD/RSI signal generation, risk manager, chart generator (completed 2026-03-19)
 - [ ] **Phase 4: Telegram Interface** - Full Telegram bot, signal dispatch, confirm/reject flow, settings commands
 - [ ] **Phase 5: Order Execution and Position Monitoring** - Binance order placement, SL/TP bracket, position monitor, dry-run
 - [ ] **Phase 6: Reporting and Audit** - Daily summary, Pine Script, skipped coins, per-signal audit trail
@@ -133,7 +133,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-19 |
 | 2. Strategy Pipeline | 4/4 | Complete   | 2026-03-19 |
-| 3. Signal and Risk | 4/5 | In Progress|  |
+| 3. Signal and Risk | 5/5 | Complete   | 2026-03-19 |
 | 4. Telegram Interface | 0/3 | Not started | - |
 | 5. Order Execution and Position Monitoring | 0/2 | Not started | - |
 | 6. Reporting and Audit | 0/3 | Not started | - |

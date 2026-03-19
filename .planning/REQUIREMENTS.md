@@ -73,12 +73,12 @@
 
 - [x] **CHART-01**: PNG chart with candlestick data (last 100-150 bars) generated per signal
 - [x] **CHART-02**: Chart shows Order Block zones (green=demand, red=supply rectangles)
-- [ ] **CHART-03**: Chart shows Fair Value Gap zones (transparent rectangles with dashed borders)
-- [ ] **CHART-04**: Chart shows BOS/CHOCH levels (horizontal lines with labels)
+- [x] **CHART-03**: Chart shows Fair Value Gap zones (transparent rectangles with dashed borders)
+- [x] **CHART-04**: Chart shows BOS/CHOCH levels (horizontal lines with labels)
 - [x] **CHART-05**: Chart shows entry (blue dashed), stop loss (red solid), take profit (green solid) lines
-- [ ] **CHART-06**: Chart includes MACD panel (histogram + lines, crossover point marked)
-- [ ] **CHART-07**: Chart includes RSI panel (30/70 levels, signal zone highlighted)
-- [ ] **CHART-08**: Chart title shows symbol, timeframe, direction, R/R ratio
+- [x] **CHART-06**: Chart includes MACD panel (histogram + lines, crossover point marked)
+- [x] **CHART-07**: Chart includes RSI panel (30/70 levels, signal zone highlighted)
+- [x] **CHART-08**: Chart title shows symbol, timeframe, direction, R/R ratio
 - [x] **CHART-09**: Chart rendered to BytesIO (no disk I/O) at 150 DPI
 
 ### Pine Script
@@ -221,12 +221,12 @@
 | RISK-10 | Phase 3 | Complete |
 | CHART-01 | Phase 3 | Complete |
 | CHART-02 | Phase 3 | Complete |
-| CHART-03 | Phase 3 | Pending |
-| CHART-04 | Phase 3 | Pending |
+| CHART-03 | Phase 3 | Complete |
+| CHART-04 | Phase 3 | Complete |
 | CHART-05 | Phase 3 | Complete |
-| CHART-06 | Phase 3 | Pending |
-| CHART-07 | Phase 3 | Pending |
-| CHART-08 | Phase 3 | Pending |
+| CHART-06 | Phase 3 | Complete |
+| CHART-07 | Phase 3 | Complete |
+| CHART-08 | Phase 3 | Complete |
 | CHART-09 | Phase 3 | Complete |
 | TG-01 | Phase 4 | Pending |
 | TG-02 | Phase 4 | Pending |

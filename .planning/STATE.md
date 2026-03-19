@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-signal-and-risk-03-PLAN.md
-last_updated: "2026-03-19T15:16:42.041Z"
+stopped_at: Completed 03-signal-and-risk-04-PLAN.md
+last_updated: "2026-03-19T15:27:53.313Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
   percent: 0
 ---
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-signal-and-risk P01 | 7 | 2 tasks | 3 files |
 | Phase 03-signal-and-risk P02 | 3 | 1 tasks | 1 files |
 | Phase 03-signal-and-risk P03 | 6 | 1 tasks | 2 files |
+| Phase 03-signal-and-risk P04 | 6 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,10 @@ Recent decisions affecting current work:
 - [Phase 03-signal-and-risk]: Both directions scored independently, highest wins; tie favors long to avoid short bias
 - [Phase 03-signal-and-risk]: Liquidation safety formula uses leverage-aware condition (liq_distance*mult >= leverage*sl_distance) — higher leverage requires proportionally tighter SL relative to liquidation distance
 - [Phase 03-signal-and-risk]: Risk Manager: all calculation functions are pure (no DB, no network) — only update_risk_settings is async for Phase 4 Telegram /risk handler
+- [Phase 03-signal-and-risk]: matplotlib.use('Agg') at module level before mplfinance import — Docker headless rendering
+- [Phase 03-signal-and-risk]: asyncio.to_thread() offloads CPU-bound _render_chart() — never block event loop with mplfinance rendering
+- [Phase 03-signal-and-risk]: plt.close(fig) mandatory after fig.savefig() — memory hygiene for long-running bot process
+- [Phase 03-signal-and-risk]: _get() accessor handles both dataclass attrs and dict keys — tests use dicts, production uses dataclasses
 
 ### Pending Todos
 
@@ -114,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T15:16:42.038Z
-Stopped at: Completed 03-signal-and-risk-03-PLAN.md
+Last session: 2026-03-19T15:27:53.309Z
+Stopped at: Completed 03-signal-and-risk-04-PLAN.md
 Resume file: None
