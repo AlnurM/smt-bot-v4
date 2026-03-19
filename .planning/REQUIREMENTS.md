@@ -9,7 +9,7 @@
 
 - [ ] **INFRA-01**: System connects to Binance Futures Testnet or Production based on single env variable (`BINANCE_ENV`)
 - [x] **INFRA-02**: All API keys stored in `.env` file, never in code or version control
-- [ ] **INFRA-03**: PostgreSQL database with all required tables created via Alembic migrations
+- [x] **INFRA-03**: PostgreSQL database with all required tables created via Alembic migrations
 - [ ] **INFRA-04**: APScheduler runs hourly market scan and scheduled jobs without drift or missed triggers
 - [x] **INFRA-05**: Application runs as single async process (asyncio event loop with aiogram + APScheduler + asyncpg)
 - [x] **INFRA-06**: Docker Compose configuration for local development (app + PostgreSQL)
@@ -178,7 +178,7 @@
 |-------------|-------|--------|
 | INFRA-01 | Phase 1 | Pending |
 | INFRA-02 | Phase 1 | Complete |
-| INFRA-03 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Complete |
 | INFRA-04 | Phase 1 | Pending |
 | INFRA-05 | Phase 1 | Complete |
 | INFRA-06 | Phase 1 | Complete |
