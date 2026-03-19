@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-signal-and-risk-02-PLAN.md
-last_updated: "2026-03-19T15:12:54.685Z"
+stopped_at: Completed 03-signal-and-risk-03-PLAN.md
+last_updated: "2026-03-19T15:16:42.041Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
   percent: 0
 ---
 
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-signal-and-risk P00 | 12 | 3 tasks | 8 files |
 | Phase 03-signal-and-risk P01 | 7 | 2 tasks | 3 files |
 | Phase 03-signal-and-risk P02 | 3 | 1 tasks | 1 files |
+| Phase 03-signal-and-risk P03 | 6 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,8 @@ Recent decisions affecting current work:
 - [Phase 03-signal-and-risk]: Lazy binance import inside generate_signal() — pure helpers importable without binance for unit tests
 - [Phase 03-signal-and-risk]: HTF 4h fetch non-fatal — exception caught, proceeds without HTF confirmation rather than aborting signal
 - [Phase 03-signal-and-risk]: Both directions scored independently, highest wins; tie favors long to avoid short bias
+- [Phase 03-signal-and-risk]: Liquidation safety formula uses leverage-aware condition (liq_distance*mult >= leverage*sl_distance) — higher leverage requires proportionally tighter SL relative to liquidation distance
+- [Phase 03-signal-and-risk]: Risk Manager: all calculation functions are pure (no DB, no network) — only update_risk_settings is async for Phase 4 Telegram /risk handler
 
 ### Pending Todos
 
@@ -111,6 +114,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T15:12:54.681Z
-Stopped at: Completed 03-signal-and-risk-02-PLAN.md
+Last session: 2026-03-19T15:16:42.038Z
+Stopped at: Completed 03-signal-and-risk-03-PLAN.md
 Resume file: None

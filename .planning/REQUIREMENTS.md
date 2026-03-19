@@ -64,10 +64,10 @@
 - [x] **RISK-04**: Maximum open positions limit (default: 5) enforced before new order
 - [x] **RISK-05**: Daily loss limit (default: 5%) — trading paused when reached, notification sent
 - [x] **RISK-06**: Minimum R/R ratio filter — signals below threshold ignored
-- [ ] **RISK-07**: Isolated margin enforced on every position
+- [x] **RISK-07**: Isolated margin enforced on every position
 - [x] **RISK-08**: MIN_NOTIONAL check before order submission — reject if position too small
 - [x] **RISK-09**: Liquidation price calculated and validated before every order
-- [ ] **RISK-10**: All risk parameters adjustable via Telegram `/risk` command
+- [x] **RISK-10**: All risk parameters adjustable via Telegram `/risk` command
 
 ### Chart Generation
 
@@ -215,10 +215,10 @@
 | RISK-04 | Phase 3 | Complete |
 | RISK-05 | Phase 3 | Complete |
 | RISK-06 | Phase 3 | Complete |
-| RISK-07 | Phase 3 | Pending |
+| RISK-07 | Phase 3 | Complete |
 | RISK-08 | Phase 3 | Complete |
 | RISK-09 | Phase 3 | Complete |
-| RISK-10 | Phase 3 | Pending |
+| RISK-10 | Phase 3 | Complete |
 | CHART-01 | Phase 3 | Complete |
 | CHART-02 | Phase 3 | Complete |
 | CHART-03 | Phase 3 | Pending |
