@@ -176,13 +176,105 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be filled during roadmap creation) | | |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Pending |
+| INFRA-06 | Phase 1 | Pending |
+| INFRA-07 | Phase 1 | Pending |
+| INFRA-08 | Phase 1 | Pending |
+| SCAN-01 | Phase 2 | Pending |
+| SCAN-02 | Phase 2 | Pending |
+| SCAN-03 | Phase 2 | Pending |
+| SCAN-04 | Phase 2 | Pending |
+| STRAT-01 | Phase 2 | Pending |
+| STRAT-02 | Phase 2 | Pending |
+| STRAT-03 | Phase 2 | Pending |
+| STRAT-04 | Phase 2 | Pending |
+| STRAT-05 | Phase 2 | Pending |
+| FILT-01 | Phase 2 | Pending |
+| FILT-02 | Phase 2 | Pending |
+| FILT-03 | Phase 2 | Pending |
+| FILT-04 | Phase 2 | Pending |
+| FILT-05 | Phase 2 | Pending |
+| LIFE-01 | Phase 2 | Pending |
+| LIFE-02 | Phase 2 | Pending |
+| LIFE-03 | Phase 2 | Pending |
+| LIFE-04 | Phase 2 | Pending |
+| LIFE-05 | Phase 2 | Pending |
+| SIG-01 | Phase 3 | Pending |
+| SIG-02 | Phase 3 | Pending |
+| SIG-03 | Phase 3 | Pending |
+| SIG-04 | Phase 3 | Pending |
+| SIG-05 | Phase 3 | Pending |
+| SIG-06 | Phase 3 | Pending |
+| RISK-01 | Phase 3 | Pending |
+| RISK-02 | Phase 3 | Pending |
+| RISK-03 | Phase 3 | Pending |
+| RISK-04 | Phase 3 | Pending |
+| RISK-05 | Phase 3 | Pending |
+| RISK-06 | Phase 3 | Pending |
+| RISK-07 | Phase 3 | Pending |
+| RISK-08 | Phase 3 | Pending |
+| RISK-09 | Phase 3 | Pending |
+| RISK-10 | Phase 3 | Pending |
+| CHART-01 | Phase 3 | Pending |
+| CHART-02 | Phase 3 | Pending |
+| CHART-03 | Phase 3 | Pending |
+| CHART-04 | Phase 3 | Pending |
+| CHART-05 | Phase 3 | Pending |
+| CHART-06 | Phase 3 | Pending |
+| CHART-07 | Phase 3 | Pending |
+| CHART-08 | Phase 3 | Pending |
+| CHART-09 | Phase 3 | Pending |
+| TG-01 | Phase 4 | Pending |
+| TG-02 | Phase 4 | Pending |
+| TG-03 | Phase 4 | Pending |
+| TG-04 | Phase 4 | Pending |
+| TG-05 | Phase 4 | Pending |
+| TG-06 | Phase 4 | Pending |
+| TG-07 | Phase 4 | Pending |
+| TG-08 | Phase 4 | Pending |
+| TG-09 | Phase 4 | Pending |
+| TG-10 | Phase 4 | Pending |
+| TG-11 | Phase 4 | Pending |
+| TG-12 | Phase 4 | Pending |
+| TG-13 | Phase 4 | Pending |
+| TG-14 | Phase 4 | Pending |
+| TG-15 | Phase 4 | Pending |
+| TG-16 | Phase 4 | Pending |
+| TG-17 | Phase 4 | Pending |
+| TG-18 | Phase 4 | Pending |
+| TG-20 | Phase 4 | Pending |
+| TG-21 | Phase 4 | Pending |
+| TG-22 | Phase 4 | Pending |
+| ORD-01 | Phase 5 | Pending |
+| ORD-02 | Phase 5 | Pending |
+| ORD-03 | Phase 5 | Pending |
+| ORD-04 | Phase 5 | Pending |
+| ORD-05 | Phase 5 | Pending |
+| MON-01 | Phase 5 | Pending |
+| MON-02 | Phase 5 | Pending |
+| MON-03 | Phase 5 | Pending |
+| MON-04 | Phase 5 | Pending |
+| MON-05 | Phase 5 | Pending |
+| TG-19 | Phase 6 | Pending |
+| PINE-01 | Phase 6 | Pending |
+| PINE-02 | Phase 6 | Pending |
+| PINE-03 | Phase 6 | Pending |
+| SKIP-01 | Phase 6 | Pending |
+| SKIP-02 | Phase 6 | Pending |
+| SKIP-03 | Phase 6 | Pending |
+| SKIP-04 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 71 total
-- Mapped to phases: 0
-- Unmapped: 71 ⚠️
+- v1 requirements: 91 total
+- Mapped to phases: 91
+- Unmapped: 0
+
+**Note:** Header previously stated 71 requirements; actual count from requirement list is 91.
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 — traceability completed after roadmap creation*
