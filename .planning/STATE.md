@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md (Claude Strategy Engine)
-last_updated: "2026-03-19T13:11:11.839Z"
+stopped_at: Completed 02-03-PLAN.md (Strategy Filter, Manager, APScheduler)
+last_updated: "2026-03-19T13:18:04.345Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-strategy-pipeline P00 | 5 | 2 tasks | 7 files |
 | Phase 02-strategy-pipeline P01 | 4 | 1 tasks | 2 files |
 | Phase 02-strategy-pipeline P02 | 4 | 1 tasks | 3 files |
+| Phase 02-strategy-pipeline P03 | 4 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 02-strategy-pipeline]: StrategySchema extra='ignore': Claude may return extra fields — silently drop rather than reject valid strategies
 - [Phase 02-strategy-pipeline]: Single retry with fresh API call on StrategySchemaError — no multi-turn conversation to avoid confusing Claude
 - [Phase 02-strategy-pipeline]: asyncio.timeout() used over asyncio.wait_for() — cleaner syntax, compatible with Python 3.12+
+- [Phase 02-strategy-pipeline]: filter_strategy is a pure stateless function — relaxed mode checks only total_return_pct + max_drawdown_pct; strict mode checks all 6 criteria
+- [Phase 02-strategy-pipeline]: run_expiry_check logs only — never deactivates; save_strategy owns the atomic deactivate+insert to prevent coverage gaps
+- [Phase 02-strategy-pipeline]: backtest_score = profit_factor * win_rate stored for ranking/analytics on every Strategy row
 
 ### Pending Todos
 
@@ -97,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T13:11:11.837Z
-Stopped at: Completed 02-02-PLAN.md (Claude Strategy Engine)
+Last session: 2026-03-19T13:18:04.342Z
+Stopped at: Completed 02-03-PLAN.md (Strategy Filter, Manager, APScheduler)
 Resume file: None
