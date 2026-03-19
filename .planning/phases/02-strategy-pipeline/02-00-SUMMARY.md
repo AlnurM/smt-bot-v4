@@ -132,3 +132,15 @@ None.
 ---
 *Phase: 02-strategy-pipeline*
 *Completed: 2026-03-19*
+
+## Self-Check: PASSED
+
+- bot/config.py: FOUND
+- .env.example: FOUND
+- tests/conftest.py: FOUND
+- tests/test_scanner.py: FOUND
+- tests/test_claude_engine.py: FOUND
+- tests/test_strategy_filter.py: FOUND
+- tests/test_strategy_manager.py: FOUND
+- Commit f2d4ab5 (Task 1): FOUND
+- Commit ed2a11c (Task 2): FOUND
