@@ -77,8 +77,9 @@ async def fetch_ohlcv_15m(
     if len(df) < MIN_HISTORY_CANDLES:
         logger.warning(
             f"Insufficient OHLCV history for {symbol}: got {len(df)} candles, "
-            f"need >= {MIN_HISTORY_CANDLES}. Callers should skip this symbol."
+            f"need >= {MIN_HISTORY_CANDLES}. Skipping symbol."
         )
+        return pd.DataFrame(columns=["open_time", "open", "high", "low", "close", "volume"])
     else:
         logger.debug(f"Fetched {len(df)} 15m candles for {symbol}")
     return df
