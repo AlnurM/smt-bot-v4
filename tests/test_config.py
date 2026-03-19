@@ -15,10 +15,20 @@ class TestSecretMasking:
 
     def test_missing_required_var(self, monkeypatch):
         """Missing BINANCE_API_KEY must raise ValidationError."""
+        from pydantic_settings import SettingsConfigDict
         from bot.config import Settings
+
+        # Subclass with env_file disabled — prevents reading .env from disk
+        class IsolatedSettings(Settings):
+            model_config = SettingsConfigDict(
+                env_file=None,
+                extra="ignore",
+            )
+
+        # Remove env vars so pydantic-settings can't find BINANCE_API_KEY anywhere
         monkeypatch.delenv("BINANCE_API_KEY", raising=False)
         with pytest.raises(ValidationError) as exc_info:
-            Settings(
+            IsolatedSettings(
                 binance_api_secret=SecretStr("secret"),
                 telegram_bot_token=SecretStr("token"),
                 database_url=SecretStr("postgresql+asyncpg://u:p@h/db"),
