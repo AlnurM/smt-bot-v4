@@ -10,3 +10,5 @@ apscheduler==3.11.2
 aiogram==3.26.0
 anthropic==0.86.0
 pandas==3.0.1
+pandas-ta-classic==0.4.47
+mplfinance==0.12.10b0
