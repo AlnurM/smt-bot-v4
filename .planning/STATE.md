@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-signal-and-risk-01-PLAN.md
-last_updated: "2026-03-19T15:06:51.695Z"
+stopped_at: Completed 03-signal-and-risk-02-PLAN.md
+last_updated: "2026-03-19T15:12:54.685Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-strategy-pipeline P03 | 4 | 2 tasks | 3 files |
 | Phase 03-signal-and-risk P00 | 12 | 3 tasks | 8 files |
 | Phase 03-signal-and-risk P01 | 7 | 2 tasks | 3 files |
+| Phase 03-signal-and-risk P02 | 3 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,9 @@ Recent decisions affecting current work:
 - [Phase 03-signal-and-risk]: pytest.importorskip at module level for Phase 3 RED-state test stubs — entire file skips until production module exists, cleaner than per-function skips
 - [Phase 03-signal-and-risk]: pandas_ta_classic is correct import name for pandas-ta-classic (not pandas_ta)
 - [Phase 03-signal-and-risk]: MACD columns from pandas-ta-classic normalised to uppercase at function boundary (MACDh->MACDH, MACDs->MACDS)
+- [Phase 03-signal-and-risk]: Lazy binance import inside generate_signal() — pure helpers importable without binance for unit tests
+- [Phase 03-signal-and-risk]: HTF 4h fetch non-fatal — exception caught, proceeds without HTF confirmation rather than aborting signal
+- [Phase 03-signal-and-risk]: Both directions scored independently, highest wins; tie favors long to avoid short bias
 
 ### Pending Todos
 
@@ -107,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T15:06:51.692Z
-Stopped at: Completed 03-signal-and-risk-01-PLAN.md
+Last session: 2026-03-19T15:12:54.681Z
+Stopped at: Completed 03-signal-and-risk-02-PLAN.md
 Resume file: None
