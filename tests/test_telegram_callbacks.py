@@ -117,20 +117,30 @@ async def test_double_confirm_noop(mock_session_factory_empty):
 
 @pytest.mark.asyncio
 async def test_reject_callback_marks_rejected(mock_session_factory, pending_signal):
-    """Reject handler sets signal.status='rejected' and commits."""
+    """Reject handler sets signal.status='rejected', commits, and asks for optional reason."""
     factory, mock_session = mock_session_factory
     signal_id = str(pending_signal.id)
     callback, cb_data = make_callback(signal_id, "reject", factory)
 
+    mock_state = AsyncMock()
+    mock_state.set_state = AsyncMock()
+    mock_state.update_data = AsyncMock()
+
     await callbacks.handle_reject(
         callback=callback,
         callback_data=cb_data,
+        state=mock_state,
         session_factory=factory,
     )
 
     assert pending_signal.status == "rejected"
     mock_session.commit.assert_called_once()
     callback.answer.assert_called_once()
+    # Should ask for optional reason via FSM
+    mock_state.set_state.assert_called_once()
+    callback.message.answer.assert_called_once()
+    reason_prompt = callback.message.answer.call_args[0][0]
+    assert "Причина" in reason_prompt or "причина" in reason_prompt
 
 
 # ---------------------------------------------------------------------------

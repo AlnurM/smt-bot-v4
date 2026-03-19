@@ -9,7 +9,9 @@ import uuid
 from datetime import datetime, timezone
 
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, Message
 from loguru import logger
 from sqlalchemy import select
 
@@ -17,6 +19,10 @@ from bot.db.models import Signal
 from bot.telegram.callbacks import SignalAction
 
 router = Router()
+
+
+class RejectReasonFSM(StatesGroup):
+    waiting_reason = State()
 
 
 # ---------------------------------------------------------------------------
@@ -83,9 +89,14 @@ async def handle_confirm(
 async def handle_reject(
     callback: CallbackQuery,
     callback_data: SignalAction,
+    state: FSMContext,
     **kwargs,
 ) -> None:
-    """Mark signal as rejected — idempotent via SELECT FOR UPDATE."""
+    """Mark signal as rejected — idempotent via SELECT FOR UPDATE.
+
+    After rejecting, asks for optional free-text reason (TG-04).
+    Trader can type a reason or just ignore — next command clears the FSM state.
+    """
     await callback.answer()
 
     session_factory = kwargs.get("session_factory")
@@ -101,7 +112,6 @@ async def handle_reject(
         signal = result.scalar_one_or_none()
 
         if signal is None:
-            # Already handled — remove buttons silently
             try:
                 await callback.message.edit_reply_markup(reply_markup=None)
             except Exception as exc:
@@ -125,6 +135,47 @@ async def handle_reject(
         )
     except Exception as exc:
         logger.debug(f"Could not edit rejected signal caption: {exc}")
+
+    # Ask for optional reason — store signal_id in FSM state
+    await state.set_state(RejectReasonFSM.waiting_reason)
+    await state.update_data(rejected_signal_id=str(callback_data.signal_id))
+    await callback.message.answer(
+        "Причина отклонения? (необязательно — отправьте текст или /skip)"
+    )
+
+
+@router.message(RejectReasonFSM.waiting_reason, F.text == "/skip")
+async def skip_reject_reason(message: Message, state: FSMContext) -> None:
+    """Trader skips providing a reason."""
+    await state.clear()
+    await message.answer("Ок, без причины.")
+
+
+@router.message(RejectReasonFSM.waiting_reason, F.text)
+async def capture_reject_reason(message: Message, state: FSMContext, **kwargs) -> None:
+    """Capture free-text rejection reason and store in DB."""
+    data = await state.get_data()
+    signal_id = data.get("rejected_signal_id")
+    reason_text = message.text.strip()
+
+    if not signal_id or not reason_text:
+        await state.clear()
+        return
+
+    session_factory = kwargs.get("session_factory")
+    async with session_factory() as session:
+        result = await session.execute(
+            select(Signal).where(Signal.id == uuid.UUID(signal_id))
+        )
+        signal = result.scalar_one_or_none()
+        if signal:
+            signal.rejection_reason = reason_text
+            signal.updated_at = datetime.now(timezone.utc)
+            await session.commit()
+            logger.info(f"Signal {signal_id} rejection reason: {reason_text}")
+
+    await state.clear()
+    await message.answer(f"✅ Причина сохранена: {reason_text}")
 
 
 # ---------------------------------------------------------------------------
