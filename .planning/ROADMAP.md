@@ -48,12 +48,13 @@ Plans:
   3. A strategy that fails filter criteria (e.g., drawdown worse than threshold) is rejected and logged with the specific failed criteria
   4. A passing strategy is persisted in PostgreSQL with `is_active=true` and a full criteria snapshot; prior version is preserved with `is_active=false`
   5. Strategy Manager skips re-generation when an active, non-expired strategy already exists for a coin
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: Market Scanner (top-N by volume, MIN_NOTIONAL filter, configurable schedule and coin count)
-- [ ] 02-02: Claude Strategy Engine (code_execution prompt with walk-forward validation, structured JSON output)
-- [ ] 02-03: Strategy Filter (all configurable thresholds, strict/relaxed modes, failure logging) + Strategy Manager lifecycle (generate, persist, expire, version history, criteria snapshot)
+- [ ] 02-00-PLAN.md — Wave 0: anthropic_api_key in Settings, .env.example update, 19 failing test scaffolds across 4 files
+- [ ] 02-01-PLAN.md — Market Scanner: top-N by volume from whitelist, CronTrigger job, OHLCV fetch with minimum history check
+- [ ] 02-02-PLAN.md — Claude Strategy Engine: Files API + code_execution, walk-forward prompt, Pydantic schema validation, typed exceptions
+- [ ] 02-03-PLAN.md — Strategy Filter (strict/relaxed modes) + Strategy Manager (save, expire, version, criteria snapshot) + APScheduler wiring in main.py
 
 ### Phase 3: Signal and Risk
 **Goal**: Given an active strategy, the bot detects live trade signals using SMC and indicator logic, sizes positions safely, and renders a chart image — all verifiable without Telegram or order placement
@@ -129,7 +130,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-19 |
-| 2. Strategy Pipeline | 0/3 | Not started | - |
+| 2. Strategy Pipeline | 1/4 | In Progress|  |
 | 3. Signal and Risk | 0/3 | Not started | - |
 | 4. Telegram Interface | 0/3 | Not started | - |
 | 5. Order Execution and Position Monitoring | 0/2 | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-19T12:24:48.274Z"
+stopped_at: Completed 02-00-PLAN.md (Wave-0 foundation)
+last_updated: "2026-03-19T13:03:18.193Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 7
+  completed_plans: 4
   percent: 0
 ---
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P01 | 3 | 1 tasks | 17 files |
 | Phase 01-foundation P02 | 7 | 2 tasks | 7 files |
 | Phase 01-foundation P03 | 525384 | 2 tasks | 8 files |
+| Phase 02-strategy-pipeline P00 | 5 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: APScheduler not started at import time — create_scheduler() returns instance only; scheduler.start() called in main() after event loop is running
 - [Phase 01-foundation]: startup_position_sync() is non-fatal — position sync failure logged as warning, bot continues startup regardless
 - [Phase 01-foundation]: loguru caplog incompatibility — log capture in tests uses logger.add() custom sink, not pytest caplog
+- [Phase 02-strategy-pipeline]: pytest.importorskip at module level for RED-state stubs — entire module skipped until production module exists, avoiding ImportError noise
+- [Phase 02-strategy-pipeline]: anthropic_api_key placed after database_url in Settings — groups all required SecretStr fields before optional fields
+- [Phase 02-strategy-pipeline]: coin_whitelist defaults to 15 hardcoded coins — overridable via COIN_WHITELIST env var per SettingsConfigDict config
 
 ### Pending Todos
 
@@ -86,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T12:24:48.271Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-strategy-pipeline/02-CONTEXT.md
+Last session: 2026-03-19T13:03:18.190Z
+Stopped at: Completed 02-00-PLAN.md (Wave-0 foundation)
+Resume file: None

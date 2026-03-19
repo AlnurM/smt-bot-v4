@@ -18,34 +18,34 @@
 
 ### Market Scanner
 
-- [ ] **SCAN-01**: Scanner retrieves top-N coins by 24h trading volume from Binance USDT-M Perpetual Futures
-- [ ] **SCAN-02**: Scanner runs on configurable schedule (default: hourly)
-- [ ] **SCAN-03**: Scanner filters out coins that don't meet minimum volume threshold
-- [ ] **SCAN-04**: Number of coins (top-N) configurable via Telegram `/settings` command
+- [x] **SCAN-01**: Scanner retrieves top-N coins by 24h trading volume from Binance USDT-M Perpetual Futures
+- [x] **SCAN-02**: Scanner runs on configurable schedule (default: hourly)
+- [x] **SCAN-03**: Scanner filters out coins that don't meet minimum volume threshold
+- [x] **SCAN-04**: Number of coins (top-N) configurable via Telegram `/settings` command
 
 ### Strategy Generation
 
-- [ ] **STRAT-01**: Claude API generates trading strategy via `code_execution` tool — writes Python backtesting code, executes it, returns structured JSON
-- [ ] **STRAT-02**: Strategy JSON contains: indicator parameters (MACD, RSI), SMC parameters (OB lookback, FVG size, BOS/CHOCH), entry conditions (long/short), exit rules (SL/TP method, R/R), and backtest results
-- [ ] **STRAT-03**: Claude backtesting uses OHLCV data for configurable period (default: 6 months) on specified timeframes (1h, 15m)
-- [ ] **STRAT-04**: Strategy generation includes walk-forward validation (train/validation split) to prevent overfitting
-- [ ] **STRAT-05**: Strategy Manager checks if active strategy exists and is not expired before requesting new generation
+- [x] **STRAT-01**: Claude API generates trading strategy via `code_execution` tool — writes Python backtesting code, executes it, returns structured JSON
+- [x] **STRAT-02**: Strategy JSON contains: indicator parameters (MACD, RSI), SMC parameters (OB lookback, FVG size, BOS/CHOCH), entry conditions (long/short), exit rules (SL/TP method, R/R), and backtest results
+- [x] **STRAT-03**: Claude backtesting uses OHLCV data for configurable period (default: 6 months) on specified timeframes (1h, 15m)
+- [x] **STRAT-04**: Strategy generation includes walk-forward validation (train/validation split) to prevent overfitting
+- [x] **STRAT-05**: Strategy Manager checks if active strategy exists and is not expired before requesting new generation
 
 ### Strategy Filter
 
-- [ ] **FILT-01**: Filter validates strategy against configurable criteria: min total return %, max drawdown %, min win rate %, min profit factor, min trades, min avg R/R
-- [ ] **FILT-02**: Default criteria: return ≥200%, drawdown ≤-12%, winrate ≥55%, PF ≥1.8, trades ≥30, avg R/R ≥2.0
-- [ ] **FILT-03**: Strict mode (all criteria must pass) and relaxed mode (only return + drawdown required) configurable
-- [ ] **FILT-04**: Failed strategies logged with which criteria were not met
-- [ ] **FILT-05**: All filter criteria adjustable via Telegram `/criteria` command
+- [x] **FILT-01**: Filter validates strategy against configurable criteria: min total return %, max drawdown %, min win rate %, min profit factor, min trades, min avg R/R
+- [x] **FILT-02**: Default criteria: return ≥200%, drawdown ≤-12%, winrate ≥55%, PF ≥1.8, trades ≥30, avg R/R ≥2.0
+- [x] **FILT-03**: Strict mode (all criteria must pass) and relaxed mode (only return + drawdown required) configurable
+- [x] **FILT-04**: Failed strategies logged with which criteria were not met
+- [x] **FILT-05**: All filter criteria adjustable via Telegram `/criteria` command
 
 ### Strategy Lifecycle
 
-- [ ] **LIFE-01**: Strategies stored in PostgreSQL with full metadata (symbol, timeframe, strategy_data JSON, backtest_score, is_active, timestamps)
-- [ ] **LIFE-02**: Strategy expires after configurable interval (default: 30 days) — triggers re-generation
-- [ ] **LIFE-03**: Old strategy versions preserved (is_active=false), never hard-deleted
-- [ ] **LIFE-04**: Review interval configurable via Telegram `/settings review_interval N`
-- [ ] **LIFE-05**: Criteria snapshot saved with each strategy for audit trail
+- [x] **LIFE-01**: Strategies stored in PostgreSQL with full metadata (symbol, timeframe, strategy_data JSON, backtest_score, is_active, timestamps)
+- [x] **LIFE-02**: Strategy expires after configurable interval (default: 30 days) — triggers re-generation
+- [x] **LIFE-03**: Old strategy versions preserved (is_active=false), never hard-deleted
+- [x] **LIFE-04**: Review interval configurable via Telegram `/settings review_interval N`
+- [x] **LIFE-05**: Criteria snapshot saved with each strategy for audit trail
 
 ### Signal Generation
 
@@ -184,25 +184,25 @@
 | INFRA-06 | Phase 1 | Complete |
 | INFRA-07 | Phase 1 | Complete |
 | INFRA-08 | Phase 1 | Complete |
-| SCAN-01 | Phase 2 | Pending |
-| SCAN-02 | Phase 2 | Pending |
-| SCAN-03 | Phase 2 | Pending |
-| SCAN-04 | Phase 2 | Pending |
-| STRAT-01 | Phase 2 | Pending |
-| STRAT-02 | Phase 2 | Pending |
-| STRAT-03 | Phase 2 | Pending |
-| STRAT-04 | Phase 2 | Pending |
-| STRAT-05 | Phase 2 | Pending |
-| FILT-01 | Phase 2 | Pending |
-| FILT-02 | Phase 2 | Pending |
-| FILT-03 | Phase 2 | Pending |
-| FILT-04 | Phase 2 | Pending |
-| FILT-05 | Phase 2 | Pending |
-| LIFE-01 | Phase 2 | Pending |
-| LIFE-02 | Phase 2 | Pending |
-| LIFE-03 | Phase 2 | Pending |
-| LIFE-04 | Phase 2 | Pending |
-| LIFE-05 | Phase 2 | Pending |
+| SCAN-01 | Phase 2 | Complete |
+| SCAN-02 | Phase 2 | Complete |
+| SCAN-03 | Phase 2 | Complete |
+| SCAN-04 | Phase 2 | Complete |
+| STRAT-01 | Phase 2 | Complete |
+| STRAT-02 | Phase 2 | Complete |
+| STRAT-03 | Phase 2 | Complete |
+| STRAT-04 | Phase 2 | Complete |
+| STRAT-05 | Phase 2 | Complete |
+| FILT-01 | Phase 2 | Complete |
+| FILT-02 | Phase 2 | Complete |
+| FILT-03 | Phase 2 | Complete |
+| FILT-04 | Phase 2 | Complete |
+| FILT-05 | Phase 2 | Complete |
+| LIFE-01 | Phase 2 | Complete |
+| LIFE-02 | Phase 2 | Complete |
+| LIFE-03 | Phase 2 | Complete |
+| LIFE-04 | Phase 2 | Complete |
+| LIFE-05 | Phase 2 | Complete |
 | SIG-01 | Phase 3 | Pending |
 | SIG-02 | Phase 3 | Pending |
 | SIG-03 | Phase 3 | Pending |
