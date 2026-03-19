@@ -90,9 +90,9 @@
 ### Telegram Bot
 
 - [x] **TG-01**: Bot accepts commands only from configured `ALLOWED_CHAT_ID`
-- [ ] **TG-02**: Signal message includes: direction, symbol, timeframe, entry/SL/TP prices, R/R, stake %, position size, signal strength, reasoning, chart image
-- [ ] **TG-03**: Signal has inline buttons: Confirm (execute trade), Reject, Pine Script
-- [ ] **TG-04**: Reject button optionally captures free-text reason
+- [x] **TG-02**: Signal message includes: direction, symbol, timeframe, entry/SL/TP prices, R/R, stake %, position size, signal strength, reasoning, chart image
+- [x] **TG-03**: Signal has inline buttons: Confirm (execute trade), Reject, Pine Script
+- [x] **TG-04**: Reject button optionally captures free-text reason
 - [x] **TG-05**: `/start` — system status, current stake, deposit balance
 - [x] **TG-06**: `/status` — balance, open positions, daily PnL, current streak/stake
 - [x] **TG-07**: `/risk` — view and modify all risk parameters
@@ -229,9 +229,9 @@
 | CHART-08 | Phase 3 | Complete |
 | CHART-09 | Phase 3 | Complete |
 | TG-01 | Phase 4 | Complete |
-| TG-02 | Phase 4 | Pending |
-| TG-03 | Phase 4 | Pending |
-| TG-04 | Phase 4 | Pending |
+| TG-02 | Phase 4 | Complete |
+| TG-03 | Phase 4 | Complete |
+| TG-04 | Phase 4 | Complete |
 | TG-05 | Phase 4 | Complete |
 | TG-06 | Phase 4 | Complete |
 | TG-07 | Phase 4 | Complete |
