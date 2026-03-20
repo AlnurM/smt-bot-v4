@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     # Scanner config
     top_n_coins: int = 10
     min_volume_usdt: float = 50_000_000.0
+    volume_norm_hours: int = 4  # baseline period for volume growth rate calculation
+    min_volume_growth_rate: float = 1.0  # minimum growth rate (1.0 = no filter, 2.0 = 2x norm)
     consecutive_empty_cycles_alert: int = 3
 
     # Binance environment — drives testnet=True/False in exchange client

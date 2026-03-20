@@ -1,4 +1,4 @@
-"""Market Scanner — coin ranking, OHLCV fetch, scheduler job registration."""
+"""Market Scanner — coin ranking by volume growth rate, OHLCV fetch, scheduler job registration."""
 from __future__ import annotations
 
 import pandas as pd
@@ -7,37 +7,72 @@ from apscheduler.triggers.cron import CronTrigger
 from binance import AsyncClient
 from loguru import logger
 
-# Minimum candles required for a valid 6-month 15m backtest (6 * 30 * 24 * 4 = 17,280; 15,000 is the floor)
+# Minimum candles required for a valid backtest
 MIN_HISTORY_CANDLES: int = 15_000
 
 
-async def get_top_n_by_volume(
+async def get_top_n_by_volume_growth(
     client: AsyncClient,
     whitelist: list[str],
     top_n: int,
-    min_volume_usdt: float = 0.0,
+    norm_hours: int = 4,
+    min_growth_rate: float = 1.0,
 ) -> list[str]:
-    """Return top-N symbols from whitelist ranked by descending 24h quoteVolume.
+    """Return top-N symbols from whitelist ranked by volume growth rate.
 
-    Excludes coins below min_volume_usdt threshold (SCAN-03).
-    Only returns symbols that appear in the whitelist (SCAN-01).
-    Length capped at top_n (SCAN-04).
+    Volume growth rate = current_hour_volume / avg_hourly_volume_over_norm_hours.
+    A rate of 2.0 means current volume is 2x the norm.
+
+    Args:
+        client: Binance AsyncClient
+        whitelist: Approved coin symbols
+        top_n: Max coins to return
+        norm_hours: Hours to use as baseline (default 4, configurable via Telegram)
+        min_growth_rate: Minimum growth rate to include (default 1.0 = no filter)
+
+    Returns:
+        List of symbols sorted by volume growth rate (highest first)
     """
-    tickers = await client.futures_ticker()
-    volume_map: dict[str, float] = {
-        t["symbol"]: float(t["quoteVolume"]) for t in tickers
-    }
+    growth_rates: dict[str, float] = {}
 
-    ranked = sorted(
-        [s for s in whitelist if s in volume_map],
-        key=lambda s: volume_map[s],
-        reverse=True,
-    )
-    filtered = [s for s in ranked if volume_map.get(s, 0.0) >= min_volume_usdt]
-    result = filtered[:top_n]
+    for symbol in whitelist:
+        try:
+            # Fetch recent klines to calculate volume growth
+            klines = await client.futures_klines(
+                symbol=symbol,
+                interval=AsyncClient.KLINE_INTERVAL_1HOUR,
+                limit=norm_hours + 1,  # +1 for current hour
+            )
+            if len(klines) < norm_hours + 1:
+                continue
+
+            volumes = [float(k[5]) for k in klines]  # index 5 = volume
+
+            # Current hour volume (last candle, may be incomplete)
+            current_vol = volumes[-1]
+            # Average of previous norm_hours
+            norm_vol = sum(volumes[:-1]) / len(volumes[:-1]) if len(volumes) > 1 else 1.0
+
+            if norm_vol > 0:
+                growth_rate = current_vol / norm_vol
+            else:
+                growth_rate = 0.0
+
+            growth_rates[symbol] = growth_rate
+
+        except Exception as e:
+            logger.debug(f"Failed to get volume for {symbol}: {e}")
+            continue
+
+    # Filter and sort
+    filtered = {s: r for s, r in growth_rates.items() if r >= min_growth_rate}
+    ranked = sorted(filtered.keys(), key=lambda s: filtered[s], reverse=True)
+    result = ranked[:top_n]
+
     logger.info(
-        f"Scanner ranked {len(whitelist)} whitelist coins → {len(result)} pass volume filter "
-        f"(min_volume={min_volume_usdt:,.0f} USDT, top_n={top_n}): {result}"
+        f"Scanner ranked {len(whitelist)} whitelist coins by volume growth "
+        f"(norm={norm_hours}h, min_rate={min_growth_rate:.1f}x) → {len(result)} pass: "
+        f"{[(s, f'{growth_rates[s]:.2f}x') for s in result]}"
     )
     return result
 
@@ -50,8 +85,7 @@ async def fetch_ohlcv_15m(
     """Fetch 15m OHLCV data from Binance USDT-M Futures for the given symbol.
 
     Returns DataFrame with columns [open_time, open, high, low, close, volume].
-    Returns empty DataFrame and logs warning if fewer than MIN_HISTORY_CANDLES candles
-    are available (STRAT-03, Pitfall 5 in RESEARCH.md).
+    Returns empty DataFrame if fewer than MIN_HISTORY_CANDLES candles available.
     """
     start_str = f"{months} months ago UTC"
     klines = await client.futures_historical_klines(
@@ -90,11 +124,7 @@ def register_scanner_job(
     hour: str = "*",
     minute: str = "0",
 ) -> None:
-    """Register the market scan job with APScheduler using CronTrigger.
-
-    Fires at minute=minute of every hour=hour (default: every hour at :00).
-    Per RESEARCH.md: use CronTrigger not IntervalTrigger to avoid drift (Pitfall 8).
-    """
+    """Register the market scan job with APScheduler using CronTrigger."""
     scheduler.add_job(
         job_fn,
         trigger=CronTrigger(hour=hour, minute=minute, timezone="UTC"),

@@ -253,11 +253,14 @@ async def main() -> None:
                 )
             )
             open_count = result.scalar()
-        await bot.send_message(
-            settings.allowed_chat_id,
-            f"Bot started — env: {settings.binance_env}, "
-            f"balance: ${balance:.2f}, open positions: {open_count}",
+        startup_msg = (
+            f"✅ Бот активен\n\n"
+            f"💰 Баланс: ${balance:.2f}\n"
+            f"📊 Открытых позиций: {open_count}\n"
+            f"💪 Текущая ставка: {settings.base_stake_pct}%\n"
+            f"🌐 Среда: {settings.binance_env}"
         )
+        await bot.send_message(settings.allowed_chat_id, startup_msg)
     except Exception as e:
         logger.warning(f"Startup notification failed (non-fatal): {e}")
 

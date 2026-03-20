@@ -167,7 +167,7 @@ async def run_strategy_scan(
     global _consecutive_empty_cycles
 
     # Import here to avoid circular imports at module load
-    from bot.scanner.market_scanner import get_top_n_by_volume, fetch_ohlcv_15m
+    from bot.scanner.market_scanner import get_top_n_by_volume_growth, fetch_ohlcv_15m
     from bot.strategy.claude_engine import (
         generate_strategy, ClaudeTimeoutError, ClaudeRateLimitError, StrategySchemaError
     )
@@ -188,15 +188,16 @@ async def run_strategy_scan(
             "strict_mode": settings.strict_mode,
         }
 
-        # Get ranked whitelist
-        top_coins = await get_top_n_by_volume(
+        # Get ranked whitelist by volume growth rate
+        top_coins = await get_top_n_by_volume_growth(
             binance_client,
             whitelist=settings.coin_whitelist,
             top_n=settings.top_n_coins,
-            min_volume_usdt=settings.min_volume_usdt,
+            norm_hours=settings.volume_norm_hours,
+            min_growth_rate=settings.min_volume_growth_rate,
         )
         if not top_coins:
-            logger.warning("Scanner returned no coins — all below volume threshold")
+            logger.warning("Scanner returned no coins — none above volume growth threshold")
             return
 
         no_strategy, expired = await get_coins_needing_strategy(top_coins, session)

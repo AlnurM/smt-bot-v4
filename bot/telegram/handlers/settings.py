@@ -83,6 +83,8 @@ _CRITERIA_DEFAULTS: dict[str, object] = {
 
 SETTINGS_ALIASES: dict[str, tuple] = {
     "top_n": ("top_n_coins", int, 1, 50),
+    "norm_hours": ("volume_norm_hours", int, 1, 24),
+    "growth_rate": ("min_volume_growth_rate", float, 0.1, 10.0),
 }
 
 
@@ -387,8 +389,10 @@ async def cmd_settings(message: Message, session_factory, settings, **kwargs) ->
         whitelist_count = len(settings.coin_whitelist) if hasattr(settings, "coin_whitelist") else "?"
         text = (
             "<b>Настройки бота:</b>\n"
-            f"top_n_coins:   {settings.top_n_coins}\n"
-            f"coin_whitelist: {whitelist_count} монет"
+            f"top_n_coins:       {settings.top_n_coins}\n"
+            f"norm_hours:        {settings.volume_norm_hours}ч (базовый период объёма)\n"
+            f"growth_rate:       {settings.min_volume_growth_rate}x (мин. темп роста)\n"
+            f"coin_whitelist:    {whitelist_count} монет"
         )
         await message.answer(text, parse_mode="HTML")
         return

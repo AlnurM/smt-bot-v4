@@ -6,7 +6,6 @@ import json
 from typing import Optional
 
 import anthropic
-import pandas as pd
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
@@ -85,31 +84,64 @@ class StrategySchema(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Prompt builder — walk-forward instructions per CONTEXT.md locked decisions
+# Prompt builder — Claude fetches data himself via code_execution
 # ---------------------------------------------------------------------------
 
 def _build_prompt(symbol: str, criteria: dict) -> str:
     """Build the Claude strategy generation prompt.
 
-    Includes WALK-FORWARD VALIDATION instructions (70/30 train/validation split).
-    All 6 filter criteria thresholds are embedded so Claude targets them directly.
+    Claude uses code_execution to fetch OHLCV data from Binance directly
+    and run backtesting — no CSV upload needed.
     """
-    return f"""The file ohlcv.csv contains 15m OHLCV data for {symbol}.
-Columns: timestamp, open, high, low, close, volume
+    period_months = criteria.get('backtest_period_months', 6)
+    return f"""TASK: Find optimal SMC + MACD/RSI trading strategy for {symbol} (Binance USDT-M Perpetual Futures, 15m timeframe).
 
-TASK: Find optimal SMC + MACD/RSI strategy parameters for {symbol}.
+STEP 1 — FETCH DATA:
+Use code_execution to fetch {period_months} months of 15m OHLCV data for {symbol} from Binance public API.
+Use this Python code to fetch data:
 
-WALK-FORWARD VALIDATION REQUIRED:
+```python
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
+
+symbol = "{symbol}"
+interval = "15m"
+end_time = int(datetime.utcnow().timestamp() * 1000)
+start_time = int((datetime.utcnow() - timedelta(days={period_months * 30})).timestamp() * 1000)
+
+all_klines = []
+current_start = start_time
+while current_start < end_time:
+    url = f"https://fapi.binance.com/fapi/v1/klines?symbol={{symbol}}&interval={{interval}}&startTime={{current_start}}&limit=1500"
+    resp = requests.get(url)
+    data = resp.json()
+    if not data:
+        break
+    all_klines.extend(data)
+    current_start = data[-1][6] + 1  # close_time + 1ms
+
+df = pd.DataFrame(all_klines, columns=[
+    "open_time", "open", "high", "low", "close", "volume",
+    "close_time", "quote_volume", "trades",
+    "taker_buy_base", "taker_buy_quote", "ignore",
+])
+df["open_time"] = pd.to_datetime(df["open_time"], unit="ms")
+for col in ["open", "high", "low", "close", "volume"]:
+    df[col] = df[col].astype(float)
+print(f"Fetched {{len(df)}} candles for {{symbol}}")
+```
+
+STEP 2 — BACKTEST WITH WALK-FORWARD VALIDATION:
 1. Split data: train = first 70%, validation = last 30%
 2. Optimize ALL parameters on TRAIN set only — no lookahead into validation
 3. Evaluate final strategy on VALIDATION set without re-fitting
 4. REJECT strategy if validation total_return < train total_return * 0.6
-   (validation performance may not drop more than 40% relative to train)
 5. Use VALIDATION set metrics as the authoritative backtest result
 
 BACKTEST CRITERIA (must pass on VALIDATION set):
 - total_return_pct >= {criteria.get('min_total_return_pct', 200.0)}%
-- max_drawdown_pct >= {criteria.get('max_drawdown_pct', -12.0)}%  (e.g., -12 means drawdown must be greater than -12%)
+- max_drawdown_pct >= {criteria.get('max_drawdown_pct', -12.0)}%  (e.g., -12 means drawdown must be no worse than -12%)
 - win_rate >= {criteria.get('min_win_rate_pct', 55.0) / 100}  (as decimal fraction)
 - profit_factor >= {criteria.get('min_profit_factor', 1.8)}
 - total_trades >= {criteria.get('min_trades', 30)}
@@ -122,10 +154,11 @@ PARAMETERS TO OPTIMIZE:
 - Exit: sl_method ("ob_boundary" or "atr"), sl_atr_mult (1.0-2.5), tp_rr_ratio (1.5-4.0)
 
 SMC ENTRY LOGIC:
-- Long: price retraces into demand Order Block, RSI oversold exit, MACD bullish crossover, BOS/CHOCH above current price
-- Short: price retraces into supply Order Block, RSI overbought exit, MACD bearish crossover, BOS/CHOCH below current price
+- Long: price retraces into demand Order Block, RSI oversold exit, MACD bullish crossover
+- Short: price retraces into supply Order Block, RSI overbought exit, MACD bearish crossover
 
-OUTPUT: Return ONLY valid JSON matching this exact schema (no markdown, no explanation, no code fences):
+STEP 3 — OUTPUT:
+After backtesting, print ONLY valid JSON matching this exact schema (no markdown, no explanation, no code fences):
 {{
   "symbol": "{symbol}",
   "timeframe": "15m",
@@ -134,7 +167,7 @@ OUTPUT: Return ONLY valid JSON matching this exact schema (no markdown, no expla
   "entry": {{"long": ["condition1", "condition2"], "short": ["condition1", "condition2"]}},
   "exit": {{"sl_method": "ob_boundary", "sl_atr_mult": F, "tp_rr_ratio": F, "trailing_stop": false}},
   "backtest": {{
-    "period_months": {criteria.get('backtest_period_months', 6)},
+    "period_months": {period_months},
     "total_trades": N,
     "total_return_pct": F,
     "win_rate": F,
@@ -154,12 +187,7 @@ If no viable strategy exists after optimization: {{"status": "no_strategy_found"
 # ---------------------------------------------------------------------------
 
 def _parse_strategy_response(response) -> dict:
-    """Extract and validate strategy JSON from Claude response content blocks.
-
-    Checks text blocks first, then tool_result blocks (Claude may print JSON in stdout).
-    Strips markdown code fences if present.
-    Raises StrategySchemaError on any parse or validation failure.
-    """
+    """Extract and validate strategy JSON from Claude response content blocks."""
     candidates: list[str] = []
 
     for block in response.content:
@@ -167,7 +195,11 @@ def _parse_strategy_response(response) -> dict:
             if block.type == "text":
                 candidates.append(block.text.strip())
             elif block.type == "tool_result":
-                # code_execution output may appear here
+                if hasattr(block, "content"):
+                    for inner in (block.content if isinstance(block.content, list) else [block.content]):
+                        if hasattr(inner, "text"):
+                            candidates.append(inner.text.strip())
+            elif block.type == "code_execution_tool_result":
                 if hasattr(block, "content"):
                     for inner in (block.content if isinstance(block.content, list) else [block.content]):
                         if hasattr(inner, "text"):
@@ -183,15 +215,28 @@ def _parse_strategy_response(response) -> dict:
                 if text.startswith("json"):
                     text = text[4:]
                 text = text.strip()
-        # Check for no_strategy_found signal
-        if '"no_strategy_found"' in text or "'no_strategy_found'" in text:
-            raise StrategySchemaError(f"Claude found no viable strategy: {text[:200]}")
-        try:
-            data = json.loads(text)
-            validated = StrategySchema.model_validate(data)
-            return validated.model_dump()
-        except (json.JSONDecodeError, ValidationError):
-            continue  # try next candidate block
+        # Try to find JSON in the text (might be surrounded by other output)
+        for start_char in ['{']:
+            idx = text.find(start_char)
+            if idx >= 0:
+                # Find matching closing brace
+                depth = 0
+                for i in range(idx, len(text)):
+                    if text[i] == '{':
+                        depth += 1
+                    elif text[i] == '}':
+                        depth -= 1
+                        if depth == 0:
+                            json_str = text[idx:i+1]
+                            try:
+                                data = json.loads(json_str)
+                                if "no_strategy_found" in str(data.get("status", "")):
+                                    raise StrategySchemaError(f"Claude found no viable strategy: {json_str[:200]}")
+                                validated = StrategySchema.model_validate(data)
+                                return validated.model_dump()
+                            except (json.JSONDecodeError, ValidationError):
+                                pass
+                            break
 
     raise StrategySchemaError("No parseable strategy JSON found in Claude response")
 
@@ -202,15 +247,15 @@ def _parse_strategy_response(response) -> dict:
 
 async def generate_strategy(
     symbol: str,
-    ohlcv_df: pd.DataFrame,
+    ohlcv_df,  # kept for API compatibility but not used — Claude fetches data himself
     criteria: dict,
     api_key: str,
     timeout: int = 480,
 ) -> dict:
     """Generate a backtested SMC+MACD/RSI strategy for the given symbol via Claude.
 
-    Uses Files API to deliver OHLCV CSV to Claude's code_execution sandbox.
-    Retries schema parsing once on failure before raising StrategySchemaError.
+    Claude fetches OHLCV data himself via code_execution and runs backtesting.
+    No CSV upload needed — keeps prompt small and avoids context window limits.
 
     Raises:
         ClaudeTimeoutError: Claude call exceeded `timeout` seconds
@@ -218,36 +263,20 @@ async def generate_strategy(
         StrategySchemaError: Response could not be parsed or validated (after 1 retry)
     """
     client = anthropic.AsyncAnthropic(api_key=api_key)
-
-    # Truncate data to fit within Claude's 200k token context window.
-    # ~1000 rows of 15m OHLCV ≈ 12k tokens. Safe limit: ~5000 rows (~60k tokens),
-    # leaving room for prompt + code_execution output.
-    MAX_ROWS = 5000
-    if len(ohlcv_df) > MAX_ROWS:
-        logger.warning(
-            f"Truncating OHLCV for {symbol}: {len(ohlcv_df)} → {MAX_ROWS} rows "
-            f"(last {MAX_ROWS} candles to fit context window)"
-        )
-        ohlcv_df = ohlcv_df.tail(MAX_ROWS).reset_index(drop=True)
-
-    csv_text = ohlcv_df.to_csv(index=False)
     prompt = _build_prompt(symbol, criteria)
 
-    # Embed CSV directly in the prompt — simpler and more reliable than Files API
-    full_prompt = f"{prompt}\n\nOHLCV DATA (CSV format, {len(ohlcv_df)} rows):\n\n{csv_text}"
-
-    logger.info(f"Calling Claude for {symbol} ({len(ohlcv_df)} rows, {len(csv_text)//1024}KB CSV)")
+    logger.info(f"Calling Claude for {symbol} (Claude will fetch data himself, timeout={timeout}s)")
 
     try:
         async with asyncio.timeout(timeout):
             response = await client.messages.create(
                 model="claude-sonnet-4-20250514",
-                max_tokens=8192,
+                max_tokens=16384,
                 tools=[{"type": "code_execution_20250522", "name": "code_execution"}],
                 messages=[
                     {
                         "role": "user",
-                        "content": full_prompt,
+                        "content": prompt,
                     }
                 ],
             )
@@ -266,18 +295,18 @@ async def generate_strategy(
     except StrategySchemaError as first_err:
         logger.warning(f"First parse attempt failed for {symbol}: {first_err}. Retrying once.")
 
-    # Single retry — fresh API call (per RESEARCH.md anti-pattern: no multi-turn retry)
+    # Single retry — fresh API call
     logger.info(f"Retry: calling Claude again for {symbol}")
     try:
         async with asyncio.timeout(timeout):
             response_retry = await client.messages.create(
                 model="claude-sonnet-4-20250514",
-                max_tokens=8192,
+                max_tokens=16384,
                 tools=[{"type": "code_execution_20250522", "name": "code_execution"}],
                 messages=[
                     {
                         "role": "user",
-                        "content": full_prompt,
+                        "content": prompt,
                     }
                 ],
             )
@@ -285,7 +314,7 @@ async def generate_strategy(
         raise ClaudeTimeoutError(
             f"Claude retry timed out after {timeout}s for {symbol}"
         )
-    except Exception as cleanup_err:
-            logger.warning(f"Failed to delete retry file {file_id_retry}: {cleanup_err}")
+    except anthropic.RateLimitError as e:
+        raise ClaudeRateLimitError(f"Claude retry rate limit for {symbol}: {e}")
 
     return _parse_strategy_response(response_retry)
