@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Telegram Interface** - Full Telegram bot, signal dispatch, confirm/reject flow, settings commands (completed 2026-03-19)
 - [x] **Phase 5: Order Execution and Position Monitoring** - Binance order placement, SL/TP bracket, position monitor, dry-run (completed 2026-03-20)
 - [x] **Phase 6: Reporting and Audit** - Daily summary, Pine Script, skipped coins, per-signal audit trail (completed 2026-03-20)
-- [ ] **Phase 7: Integration Wiring Fix** - Signal DB row creation, DailyStats starting_balance, risk control call sites (gap closure)
+- [x] **Phase 7: Integration Wiring Fix** - Signal DB row creation, DailyStats starting_balance, risk control call sites (gap closure) (completed 2026-03-20)
 
 ## Phase Details
 
@@ -156,4 +156,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Telegram Interface | 3/3 | Complete   | 2026-03-19 |
 | 5. Order Execution and Position Monitoring | 3/3 | Complete   | 2026-03-20 |
 | 6. Reporting and Audit | 3/3 | Complete   | 2026-03-20 |
-| 7. Integration Wiring Fix | 1/2 | In Progress|  |
+| 7. Integration Wiring Fix | 2/2 | Complete   | 2026-03-20 |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-01-PLAN.md (Signal ORM insert-before-dispatch + R/R filter wiring)
-last_updated: "2026-03-20T09:11:17.514Z"
+stopped_at: Completed 07-02-PLAN.md (starting_balance, daily-loss warning, liquidation safety gate, /help dryrun)
+last_updated: "2026-03-20T09:12:42.625Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 23
-  completed_plans: 22
+  completed_plans: 23
   percent: 0
 ---
 
@@ -72,6 +72,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 06-reporting-and-audit P02 | 5 | 3 tasks | 9 files |
 | Phase 06-reporting-and-audit P03 | 3 | 2 tasks | 4 files |
 | Phase 07-integration-wiring-fix P01 | 2 | 2 tasks | 2 files |
+| Phase 07-integration-wiring-fix P02 | 11 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -143,6 +144,8 @@ Recent decisions affecting current work:
 - [Phase 06-reporting-and-audit]: noop field on LoosenCriteria removes keyboard without DB write — avoids phantom criterion updates
 - [Phase 07-integration-wiring-fix]: session.flush() (not commit()) before dispatch gives UUID while allowing rollback if bot paused
 - [Phase 07-integration-wiring-fix]: R/R filter placed before ORM insert — no DB write for filtered signals, continue to next coin
+- [Phase 07-integration-wiring-fix]: Reuse risk row fetched for TG-20 check in step 3d to avoid duplicate SELECT RiskSettings in same session
+- [Phase 07-integration-wiring-fix]: validate_liquidation_safety added to top-level import in executor.py (not local import inside function)
 
 ### Pending Todos
 
@@ -156,6 +159,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T09:11:17.511Z
-Stopped at: Completed 07-01-PLAN.md (Signal ORM insert-before-dispatch + R/R filter wiring)
+Last session: 2026-03-20T09:12:42.622Z
+Stopped at: Completed 07-02-PLAN.md (starting_balance, daily-loss warning, liquidation safety gate, /help dryrun)
 Resume file: None
