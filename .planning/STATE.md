@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-02-PLAN.md (Pine Script generation)
-last_updated: "2026-03-20T08:09:14.288Z"
+stopped_at: Completed 06-03-PLAN.md (skipped coins loosen buttons + cmd_skipped drill-down)
+last_updated: "2026-03-20T08:14:00.477Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 21
-  completed_plans: 20
+  completed_plans: 21
   percent: 0
 ---
 
@@ -70,6 +70,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05-order-execution-and-position-monitoring P02 | 5 | 2 tasks | 4 files |
 | Phase 06-reporting-and-audit P01 | 3 | 2 tasks | 4 files |
 | Phase 06-reporting-and-audit P02 | 5 | 3 tasks | 9 files |
+| Phase 06-reporting-and-audit P03 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,9 @@ Recent decisions affecting current work:
 - [Phase 06-reporting-and-audit]: generate_pine_script() accepts individual params (not Signal ORM) — pure function with no DB dependency, fully unit-testable
 - [Phase 06-reporting-and-audit]: _zones_to_json_safe() uses hasattr(__dataclass_fields__) duck-typing — handles both dataclass instances from generator and plain dicts from DB JSONB
 - [Phase 06-reporting-and-audit]: Pine Script zones capped at 5 per type — Pine editor performance degrades with many box/line objects
+- [Phase 06-reporting-and-audit]: LoosenCriteria prefix 'lc' + field name fits well within 64-byte Telegram callback_data limit
+- [Phase 06-reporting-and-audit]: send_skipped_coins_alert throttle logic moved inline — keyboard markup requires direct bot.send_message, not send_error_alert helper
+- [Phase 06-reporting-and-audit]: noop field on LoosenCriteria removes keyboard without DB write — avoids phantom criterion updates
 
 ### Pending Todos
 
@@ -149,6 +153,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T08:09:14.285Z
-Stopped at: Completed 06-02-PLAN.md (Pine Script generation)
+Last session: 2026-03-20T08:14:00.474Z
+Stopped at: Completed 06-03-PLAN.md (skipped coins loosen buttons + cmd_skipped drill-down)
 Resume file: None

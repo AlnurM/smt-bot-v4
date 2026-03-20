@@ -130,10 +130,10 @@
 
 ### Skipped Coins
 
-- [ ] **SKIP-01**: Coins that fail strategy criteria are logged with: symbol, backtest results, which criteria failed
-- [ ] **SKIP-02**: Optional Telegram notification when coin is skipped (configurable)
-- [ ] **SKIP-03**: `/skipped` command shows history with time filters (24h, 7d) and per-coin drill-down
-- [ ] **SKIP-04**: Alert when no coins pass criteria for multiple consecutive scan cycles
+- [x] **SKIP-01**: Coins that fail strategy criteria are logged with: symbol, backtest results, which criteria failed
+- [x] **SKIP-02**: Optional Telegram notification when coin is skipped (configurable)
+- [x] **SKIP-03**: `/skipped` command shows history with time filters (24h, 7d) and per-coin drill-down
+- [x] **SKIP-04**: Alert when no coins pass criteria for multiple consecutive scan cycles
 
 ## v2 Requirements
 
@@ -263,10 +263,10 @@
 | PINE-01 | Phase 6 | Complete |
 | PINE-02 | Phase 6 | Complete |
 | PINE-03 | Phase 6 | Complete |
-| SKIP-01 | Phase 6 | Pending |
-| SKIP-02 | Phase 6 | Pending |
-| SKIP-03 | Phase 6 | Pending |
-| SKIP-04 | Phase 6 | Pending |
+| SKIP-01 | Phase 6 | Complete |
+| SKIP-02 | Phase 6 | Complete |
+| SKIP-03 | Phase 6 | Complete |
+| SKIP-04 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 91 total
