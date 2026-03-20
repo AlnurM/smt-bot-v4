@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Telegram Interface** - Full Telegram bot, signal dispatch, confirm/reject flow, settings commands (completed 2026-03-19)
 - [x] **Phase 5: Order Execution and Position Monitoring** - Binance order placement, SL/TP bracket, position monitor, dry-run (completed 2026-03-20)
 - [x] **Phase 6: Reporting and Audit** - Daily summary, Pine Script, skipped coins, per-signal audit trail (completed 2026-03-20)
+- [ ] **Phase 7: Integration Wiring Fix** - Signal DB row creation, DailyStats starting_balance, risk control call sites (gap closure)
 
 ## Phase Details
 
@@ -125,10 +126,27 @@ Plans:
 - [ ] 06-02-PLAN.md — Pine Script generator (v5, hardcoded OB/FVG/BOS/CHOCH/entry/SL/TP/MACD/RSI), Alembic migration 0005 (Signal.zones_data JSONB), handle_pine + cmd_chart wiring
 - [ ] 06-03-PLAN.md — Skipped coins enhancements: LoosenCriteria callback, loosen buttons on consecutive-skip alert, handle_loosen_criteria handler, enhanced cmd_skipped (compact + drill-down)
 
+### Phase 7: Integration Wiring Fix
+**Goal**: Close the 3 cross-phase integration gaps identified by milestone audit — Signal DB row creation, DailyStats starting_balance population, and risk control call site wiring
+**Depends on**: Phase 6
+**Requirements**: SIG-01, SIG-02, SIG-03, SIG-04, SIG-05, SIG-06, TG-03, TG-04, TG-18, TG-20, RISK-03, RISK-04, RISK-08, ORD-01, ORD-02, ORD-03, ORD-04, ORD-05, MON-01, MON-02, MON-03, MON-04, MON-05
+**Gap Closure**: Closes gaps from v1.0 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. `run_strategy_scan` creates a Signal DB row with real UUID before dispatching — Confirm/Reject callbacks find the row by ID
+  2. `DailyStats.starting_balance` is populated on INSERT with actual Binance balance — daily loss circuit breaker uses real balance, not $1.00 fallback
+  3. `check_and_warn_daily_loss()` called after every position close — 80% warning reaches Telegram
+  4. `check_rr_ratio()` called before signal dispatch — signals below min_rr_ratio are filtered
+  5. `validate_liquidation_safety()` called before order placement — orders rejected if liquidation too close
+**Plans**: TBD
+
+Plans:
+- [ ] 07-01: Signal DB row creation in manager.py + R/R filter wiring + zones_data persistence fix
+- [ ] 07-02: DailyStats starting_balance + check_and_warn_daily_loss call site + validate_liquidation_safety call site + /help text fix
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -138,3 +156,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. Telegram Interface | 3/3 | Complete   | 2026-03-19 |
 | 5. Order Execution and Position Monitoring | 3/3 | Complete   | 2026-03-20 |
 | 6. Reporting and Audit | 3/3 | Complete   | 2026-03-20 |
+| 7. Integration Wiring Fix | 0/2 | Not started | - |
