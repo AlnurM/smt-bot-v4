@@ -20,9 +20,10 @@ target_metadata = Base.metadata
 
 # Inject the real DB URL from pydantic-settings (overrides alembic.ini placeholder)
 from bot.config import settings  # noqa: E402
+from bot.db.session import _ensure_asyncpg_url  # noqa: E402
 config.set_main_option(
     "sqlalchemy.url",
-    settings.database_url.get_secret_value(),
+    _ensure_asyncpg_url(settings.database_url.get_secret_value()),
 )
 
 
