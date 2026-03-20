@@ -510,6 +510,7 @@ async def cmd_help(message: Message, **kwargs) -> None:
         "/scan — Запустить сканирование рынка\n"
         "/pause — Приостановить генерацию сигналов\n"
         "/resume — Возобновить генерацию сигналов\n"
+        "/dryrun [on|off] — Режим тестирования без реальных ордеров\n"
         "/help — Эта справка"
     )
     await message.answer(text)

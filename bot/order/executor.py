@@ -40,6 +40,7 @@ from bot.risk.manager import (
     check_max_positions,
     check_daily_loss,
     check_min_notional,
+    validate_liquidation_safety,
 )
 from bot.telegram.notifications import send_error_alert
 
@@ -387,6 +388,38 @@ async def execute_order(
             )
             async with session_factory() as session:
                 result = await session.execute(select(Signal).where(Signal.id == signal_id_val))
+                sig = result.scalar_one_or_none()
+                if sig:
+                    sig.status = "failed"
+                    sig.updated_at = datetime.now(timezone.utc)
+                    await session.commit()
+            return
+
+        # -------------------------------------------------------------------------
+        # Step 11b: Liquidation safety check (RISK-08)
+        # -------------------------------------------------------------------------
+        is_liq_safe, liq_price = validate_liquidation_safety(
+            entry_price=current_price,
+            stop_loss=signal.stop_loss,
+            leverage=risk.leverage,
+        )
+        if not is_liq_safe:
+            logger.warning(
+                f"execute_order: liquidation safety FAILED for {symbol} — "
+                f"liq_price={liq_price:.4f}, entry={current_price:.4f}, "
+                f"sl={signal.stop_loss:.4f}, leverage={risk.leverage}x"
+            )
+            await send_error_alert(
+                bot,
+                settings.allowed_chat_id,
+                f"order_error_{symbol}_liq_safety",
+                f"Ордер отклонён: цена ликвидации (${liq_price:.2f}) слишком близко к SL "
+                f"(${signal.stop_loss:.2f}) при плече {risk.leverage}x",
+            )
+            async with session_factory() as session:
+                result = await session.execute(
+                    select(Signal).where(Signal.id == signal_id_val)
+                )
                 sig = result.scalar_one_or_none()
                 if sig:
                     sig.status = "failed"
