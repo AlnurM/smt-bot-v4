@@ -312,6 +312,10 @@ async def run_strategy_scan(
                                 db_signal = db_signal_result.scalars().first()
                                 if db_signal is not None:
                                     db_signal.telegram_message_id = message_id
+                                    # Save zones data for Pine Script generation (PINE-01)
+                                    if signal.get("zones"):
+                                        from bot.reporting.pine_script import _zones_to_json_safe
+                                        db_signal.zones_data = _zones_to_json_safe(signal["zones"])
                                     await session.commit()
                                     schedule_signal_expiry(
                                         scheduler,

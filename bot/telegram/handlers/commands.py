@@ -340,13 +340,55 @@ async def cmd_scan(message: Message, session_factory, binance_client, settings, 
 # ---------------------------------------------------------------------------
 
 @router.message(Command("chart"))
-async def cmd_chart(message: Message, **kwargs) -> None:
-    """Phase 4 placeholder — Pine Script for symbol (next update)."""
+async def cmd_chart(message: Message, session_factory, **kwargs) -> None:
+    """Return Pine Script v5 .txt file for the most recent signal of the given symbol.
+
+    Usage: /chart SOLUSDT
+    """
     parts = (message.text or "").split()
-    symbol = parts[1].upper() if len(parts) >= 2 else "SYMBOL"
-    await message.answer(
-        f"Pine Script для {symbol} будет доступен в следующем обновлении."
-    )
+    if len(parts) < 2:
+        await message.answer("Использование: /chart SYMBOL\nПример: /chart SOLUSDT")
+        return
+
+    symbol = parts[1].strip().upper()
+
+    try:
+        async with session_factory() as session:
+            result = await session.execute(
+                select(Signal)
+                .where(Signal.symbol == symbol)
+                .order_by(Signal.created_at.desc())
+                .limit(1)
+            )
+            signal = result.scalars().first()
+
+        if signal is None:
+            await message.answer(f"Нет сигналов для {symbol}.")
+            return
+
+        from bot.reporting.pine_script import generate_pine_script
+        from aiogram.types import BufferedInputFile
+
+        pine_text = generate_pine_script(
+            symbol=signal.symbol,
+            timeframe=signal.timeframe,
+            direction=signal.direction,
+            entry_price=signal.entry_price,
+            stop_loss=signal.stop_loss,
+            take_profit=signal.take_profit,
+            rr_ratio=signal.rr_ratio,
+            signal_strength=signal.signal_strength,
+            zones_data=signal.zones_data,
+        )
+        filename = f"pine_script_{signal.symbol}_{signal.timeframe}.txt"
+        await message.answer_document(
+            document=BufferedInputFile(pine_text.encode("utf-8"), filename=filename),
+            caption=f"Pine Script — {signal.symbol} {signal.timeframe}",
+        )
+
+    except Exception as exc:
+        logger.exception(f"/chart error for {symbol}: {exc}")
+        await message.answer(f"Ошибка получения Pine Script для {symbol}.")
 
 
 # ---------------------------------------------------------------------------

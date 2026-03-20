@@ -147,9 +147,69 @@ async def test_reject_callback_marks_rejected(mock_session_factory, pending_sign
 # handle_pine tests
 # ---------------------------------------------------------------------------
 
+@pytest.fixture
+def pine_signal():
+    """Mock Signal ORM object with all fields required for Pine Script generation."""
+    sig = MagicMock()
+    sig.id = uuid.uuid4()
+    sig.symbol = "SOLUSDT"
+    sig.timeframe = "1h"
+    sig.direction = "long"
+    sig.entry_price = 145.30
+    sig.stop_loss = 140.00
+    sig.take_profit = 163.20
+    sig.rr_ratio = 3.37
+    sig.signal_strength = "Strong"
+    sig.zones_data = None
+    return sig
+
+
+@pytest.fixture
+def mock_session_factory_pine(pine_signal):
+    """Session factory that returns a pine_signal on execute."""
+    mock_result = MagicMock()
+    mock_result.scalar_one_or_none.return_value = pine_signal
+
+    mock_session = AsyncMock()
+    mock_session.execute.return_value = mock_result
+
+    factory = MagicMock()
+    factory.return_value.__aenter__ = AsyncMock(return_value=mock_session)
+    factory.return_value.__aexit__ = AsyncMock(return_value=False)
+    return factory, mock_session
+
+
 @pytest.mark.asyncio
-async def test_pine_callback_sends_placeholder():
-    """Pine Script handler answers callback and sends placeholder text."""
+async def test_pine_callback_sends_document(mock_session_factory_pine, pine_signal):
+    """Pine Script handler answers callback and sends a .txt document."""
+    factory, _ = mock_session_factory_pine
+    signal_id = str(pine_signal.id)
+    callback = AsyncMock()
+    callback.answer = AsyncMock()
+    callback.message = AsyncMock()
+    callback.message.answer_document = AsyncMock()
+    cb_data = MagicMock()
+    cb_data.signal_id = signal_id
+    cb_data.action = "pine"
+
+    await callbacks.handle_pine(
+        callback=callback,
+        callback_data=cb_data,
+        session_factory=factory,
+    )
+
+    callback.answer.assert_called_once()
+    callback.message.answer_document.assert_called_once()
+    # Verify filename contains symbol and timeframe
+    call_kwargs = callback.message.answer_document.call_args
+    caption = call_kwargs[1].get("caption", "") or ""
+    assert "SOLUSDT" in caption or "1h" in caption
+
+
+@pytest.mark.asyncio
+async def test_pine_callback_signal_not_found(mock_session_factory_empty):
+    """Pine Script handler sends error message when signal not found."""
+    factory, _ = mock_session_factory_empty
     signal_id = str(uuid.uuid4())
     callback = AsyncMock()
     callback.answer = AsyncMock()
@@ -162,10 +222,8 @@ async def test_pine_callback_sends_placeholder():
     await callbacks.handle_pine(
         callback=callback,
         callback_data=cb_data,
+        session_factory=factory,
     )
 
     callback.answer.assert_called_once()
     callback.message.answer.assert_called_once()
-    # Verify placeholder text contains "Pine Script"
-    answer_text = callback.message.answer.call_args[0][0]
-    assert "Pine Script" in answer_text or "pine" in answer_text.lower()

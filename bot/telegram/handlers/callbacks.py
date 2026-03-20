@@ -193,7 +193,7 @@ async def capture_reject_reason(message: Message, state: FSMContext, **kwargs) -
 
 
 # ---------------------------------------------------------------------------
-# handle_pine (TG-15 Phase 6 placeholder)
+# handle_pine (PINE-02)
 # ---------------------------------------------------------------------------
 
 @router.callback_query(SignalAction.filter(F.action == "pine"))
@@ -202,8 +202,40 @@ async def handle_pine(
     callback_data: SignalAction,
     **kwargs,
 ) -> None:
-    """Pine Script placeholder — Phase 6 implementation deferred."""
+    """Generate and send Pine Script v5 for the signal (PINE-01, PINE-02, PINE-03)."""
     await callback.answer()
-    await callback.message.answer(
-        "📊 Pine Script будет доступен в следующем обновлении."
-    )
+
+    session_factory = kwargs.get("session_factory")
+    async with session_factory() as session:
+        result = await session.execute(
+            select(Signal).where(Signal.id == uuid.UUID(callback_data.signal_id))
+        )
+        signal = result.scalar_one_or_none()
+
+    if signal is None:
+        await callback.message.answer("Сигнал не найден.")
+        return
+
+    try:
+        from bot.reporting.pine_script import generate_pine_script
+        from aiogram.types import BufferedInputFile
+
+        pine_text = generate_pine_script(
+            symbol=signal.symbol,
+            timeframe=signal.timeframe,
+            direction=signal.direction,
+            entry_price=signal.entry_price,
+            stop_loss=signal.stop_loss,
+            take_profit=signal.take_profit,
+            rr_ratio=signal.rr_ratio,
+            signal_strength=signal.signal_strength,
+            zones_data=signal.zones_data,
+        )
+        filename = f"pine_script_{signal.symbol}_{signal.timeframe}.txt"
+        await callback.message.answer_document(
+            document=BufferedInputFile(pine_text.encode("utf-8"), filename=filename),
+            caption=f"Pine Script — {signal.symbol} {signal.timeframe}",
+        )
+    except Exception as exc:
+        logger.exception(f"Pine Script generation failed for signal {signal.id}: {exc}")
+        await callback.message.answer("Ошибка генерации Pine Script. Проверьте логи.")
