@@ -24,19 +24,13 @@ class Settings(BaseSettings):
 
     # Market Scanner — whitelist of coins approved for scanning
     # Set COIN_WHITELIST=BTCUSDT,ETHUSDT,... in .env to override
-    coin_whitelist: list[str] = [
-        "BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT",
-        "ADAUSDT", "DOGEUSDT", "AVAXUSDT", "LINKUSDT", "MATICUSDT",
-        "DOTUSDT", "LTCUSDT", "UNIUSDT", "ATOMUSDT", "NEARUSDT",
-    ]
+    # Stored as comma-separated string to avoid pydantic-settings JSON parse issues
+    coin_whitelist_raw: str = "BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,XRPUSDT,ADAUSDT,DOGEUSDT,AVAXUSDT,LINKUSDT,MATICUSDT,DOTUSDT,LTCUSDT,UNIUSDT,ATOMUSDT,NEARUSDT"
 
-    @field_validator("coin_whitelist", mode="before")
-    @classmethod
-    def parse_whitelist(cls, v):
-        """Accept comma-separated string from env: COIN_WHITELIST=BTCUSDT,ETHUSDT,..."""
-        if isinstance(v, str):
-            return [s.strip() for s in v.split(",") if s.strip()]
-        return v
+    @property
+    def coin_whitelist(self) -> list[str]:
+        """Parse comma-separated whitelist string into list."""
+        return [s.strip() for s in self.coin_whitelist_raw.split(",") if s.strip()]
 
     # Scanner config
     top_n_coins: int = 10
