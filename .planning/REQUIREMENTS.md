@@ -114,19 +114,19 @@
 
 ### Order Execution
 
-- [ ] **ORD-01**: Market order placed on Binance Futures after Telegram confirmation
-- [ ] **ORD-02**: SL and TP orders placed immediately after entry fill
-- [ ] **ORD-03**: Order confirmation sent to Telegram with fill price and actual position size
-- [ ] **ORD-04**: Order errors sent to Telegram immediately with actionable description
-- [ ] **ORD-05**: Double-tap protection — DB-level unique constraint prevents duplicate orders from concurrent callbacks
+- [x] **ORD-01**: Market order placed on Binance Futures after Telegram confirmation
+- [x] **ORD-02**: SL and TP orders placed immediately after entry fill
+- [x] **ORD-03**: Order confirmation sent to Telegram with fill price and actual position size
+- [x] **ORD-04**: Order errors sent to Telegram immediately with actionable description
+- [x] **ORD-05**: Double-tap protection — DB-level unique constraint prevents duplicate orders from concurrent callbacks
 
 ### Position Monitoring
 
-- [ ] **MON-01**: Open positions tracked with current PnL (via Binance API polling or WebSocket)
-- [ ] **MON-02**: Notification sent when SL or TP is hit with final PnL
-- [ ] **MON-03**: Trade record created on position close (entry, exit, PnL, close reason)
-- [ ] **MON-04**: Win streak counter updated on position close
-- [ ] **MON-05**: Daily stats aggregated (PnL, trade count, win rate)
+- [x] **MON-01**: Open positions tracked with current PnL (via Binance API polling or WebSocket)
+- [x] **MON-02**: Notification sent when SL or TP is hit with final PnL
+- [x] **MON-03**: Trade record created on position close (entry, exit, PnL, close reason)
+- [x] **MON-04**: Win streak counter updated on position close
+- [x] **MON-05**: Daily stats aggregated (PnL, trade count, win rate)
 
 ### Skipped Coins
 
@@ -249,16 +249,16 @@
 | TG-20 | Phase 4 | Complete |
 | TG-21 | Phase 4 | Complete |
 | TG-22 | Phase 4 | Complete |
-| ORD-01 | Phase 5 | Pending |
-| ORD-02 | Phase 5 | Pending |
-| ORD-03 | Phase 5 | Pending |
-| ORD-04 | Phase 5 | Pending |
-| ORD-05 | Phase 5 | Pending |
-| MON-01 | Phase 5 | Pending |
-| MON-02 | Phase 5 | Pending |
-| MON-03 | Phase 5 | Pending |
-| MON-04 | Phase 5 | Pending |
-| MON-05 | Phase 5 | Pending |
+| ORD-01 | Phase 5 | Complete |
+| ORD-02 | Phase 5 | Complete |
+| ORD-03 | Phase 5 | Complete |
+| ORD-04 | Phase 5 | Complete |
+| ORD-05 | Phase 5 | Complete |
+| MON-01 | Phase 5 | Complete |
+| MON-02 | Phase 5 | Complete |
+| MON-03 | Phase 5 | Complete |
+| MON-04 | Phase 5 | Complete |
+| MON-05 | Phase 5 | Complete |
 | TG-19 | Phase 6 | Pending |
 | PINE-01 | Phase 6 | Pending |
 | PINE-02 | Phase 6 | Pending |

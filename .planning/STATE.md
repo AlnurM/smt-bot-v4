@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 5 context gathered
-last_updated: "2026-03-20T06:34:47.339Z"
+stopped_at: "Completed 05-00-PLAN.md (Wave 0 infrastructure: migration 0004, ORM updates, RED test scaffolds)"
+last_updated: "2026-03-20T07:09:17.806Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 18
+  completed_plans: 16
   percent: 0
 ---
 
@@ -65,6 +65,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-telegram-interface P01 | 7 | 3 tasks | 13 files |
 | Phase 04-telegram-interface P03 | 251 | 2 tasks | 3 files |
 | Phase 04-telegram-interface P02 | 5 | 3 tasks | 5 files |
+| Phase 05-order-execution-and-position-monitoring P00 | 2 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,9 @@ Recent decisions affecting current work:
 - [Phase 04-telegram-interface]: expire_signal_job uses plain select (no FOR UPDATE) — scheduler job id uniqueness is sufficient for single-writer expiry path
 - [Phase 04-telegram-interface]: callback.answer() called FIRST in all handlers before any DB work — satisfies Telegram 60s deadline (Pattern established)
 - [Phase 04-telegram-interface]: SELECT FOR UPDATE + status == pending filter = atomic idempotency for Confirm/Reject double-tap protection
+- [Phase 05-order-execution-and-position-monitoring]: Phase 5 double-tap protection relies on uq_orders_signal_id DB constraint — executor catches IntegrityError and returns early
+- [Phase 05-order-execution-and-position-monitoring]: RED stubs use pytest.importorskip at module level — consistent with Phase 2/3 pattern, avoids ImportError noise
+- [Phase 05-order-execution-and-position-monitoring]: mock_binance_client extended in-place (not replaced) — backward compatible with all existing Phase 2-4 tests
 
 ### Pending Todos
 
@@ -132,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T06:34:47.331Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-order-execution-and-position-monitoring/05-CONTEXT.md
+Last session: 2026-03-20T07:09:17.802Z
+Stopped at: Completed 05-00-PLAN.md (Wave 0 infrastructure: migration 0004, ORM updates, RED test scaffolds)
+Resume file: None
