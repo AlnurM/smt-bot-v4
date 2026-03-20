@@ -243,7 +243,7 @@ async def run_strategy_scan(
                     ohlcv_df=ohlcv_df,
                     criteria=criteria,
                     api_key=settings.anthropic_api_key.get_secret_value(),
-                    timeout=180,
+                    timeout=480,
                 )
 
                 filter_result = filter_strategy(
