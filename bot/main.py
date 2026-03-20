@@ -143,15 +143,30 @@ async def main() -> None:
         logger.info("DB connection OK")
 
         # Auto-run migrations on startup (safe for fresh DBs like Railway)
+        from alembic.runtime.migration import MigrationContext
+        from alembic.operations import Operations
+        from bot.db.models import Base
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("DB tables ensured (create_all)")
+
+        # Now run Alembic stamp so it knows we're at head
         from alembic.config import Config as AlembicConfig
-        from alembic import command as alembic_command
+        from alembic.script import ScriptDirectory
         alembic_cfg = AlembicConfig("alembic.ini")
-        alembic_cfg.set_main_option(
-            "sqlalchemy.url",
-            _ensure_asyncpg_url(settings.database_url.get_secret_value()),
-        )
-        alembic_command.upgrade(alembic_cfg, "head")
-        logger.info("DB migrations applied")
+        script_dir = ScriptDirectory.from_config(alembic_cfg)
+        head_rev = script_dir.get_current_head()
+
+        async with engine.begin() as conn:
+            def stamp_head(sync_conn):
+                ctx = MigrationContext.configure(sync_conn)
+                if ctx.get_current_revision() is None:
+                    ctx._ensure_version_table()
+                    sync_conn.execute(
+                        ctx._version.insert().values(version_num=head_rev)
+                    )
+            await conn.run_sync(stamp_head)
+        logger.info(f"DB migrations stamped at head: {head_rev}")
 
         await verify_migrations_current()
     except Exception as e:
