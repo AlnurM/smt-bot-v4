@@ -18,6 +18,7 @@ from bot.telegram.handlers.commands import router as commands_router
 from bot.telegram.handlers.callbacks import router as callbacks_router
 from bot.telegram.handlers.settings import router as settings_router
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 
 async def startup_position_sync(binance_client, session_factory) -> None:

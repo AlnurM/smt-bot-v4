@@ -23,7 +23,8 @@ router = Router()
 
 # Module-level state dict — shared between handlers and dispatch (Plan 02)
 # Plan 02 imports _bot_state to check ["paused"] before sending signal messages
-_bot_state: dict = {"paused": False}
+# Phase 5 adds "dry_run" key — read by bot/order/executor.py to skip Binance API calls
+_bot_state: dict = {"paused": False, "dry_run": False}
 
 # Signal status emoji map
 _STATUS_EMOJI = {
@@ -370,6 +371,32 @@ async def cmd_resume(message: Message, **kwargs) -> None:
     _bot_state["paused"] = False
     logger.info("Bot resumed via /resume command")
     await message.answer("▶️ Генерация сигналов возобновлена.")
+
+
+# ---------------------------------------------------------------------------
+# /dryrun (ORD-DRY) — toggle dry-run mode at runtime without restart
+# ---------------------------------------------------------------------------
+
+@router.message(Command("dryrun"))
+async def cmd_dryrun(message: Message, **kwargs) -> None:
+    """Toggle dry-run mode: /dryrun on or /dryrun off.
+
+    Without argument: shows current state.
+    In dry-run mode, execute_order() skips all Binance API calls and creates
+    an Order row with status='dry_run'.
+    """
+    parts = (message.text or "").split()
+    if len(parts) < 2 or parts[1].lower() not in ("on", "off"):
+        status = "ВКЛ" if _bot_state.get("dry_run") else "ВЫКЛ"
+        await message.answer(
+            f"Dry-run режим: {status}\n"
+            f"Использование: /dryrun on — включить, /dryrun off — выключить"
+        )
+        return
+    _bot_state["dry_run"] = (parts[1].lower() == "on")
+    status = "ВКЛ" if _bot_state["dry_run"] else "ВЫКЛ"
+    logger.info(f"Dry-run mode set to {_bot_state['dry_run']} via /dryrun command")
+    await message.answer(f"Dry-run режим: {status}")
 
 
 # ---------------------------------------------------------------------------

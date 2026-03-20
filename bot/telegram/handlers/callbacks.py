@@ -5,6 +5,7 @@ Each handler:
   2. Opens its own session (never shared between handlers).
   3. Uses SELECT ... FOR UPDATE for atomic idempotency on confirm/reject.
 """
+import asyncio
 import uuid
 from datetime import datetime, timezone
 
@@ -16,6 +17,7 @@ from loguru import logger
 from sqlalchemy import select
 
 from bot.db.models import Signal
+from bot.order.executor import execute_order
 from bot.telegram.callbacks import SignalAction
 
 router = Router()
@@ -67,6 +69,18 @@ async def handle_confirm(
         await session.commit()
 
     logger.info(f"Signal {callback_data.signal_id} confirmed by user")
+
+    # Fire order execution as a non-blocking task.
+    # binance_client, settings, bot, session_factory are injected via dp workflow_data.
+    asyncio.create_task(
+        execute_order(
+            signal_id=signal.id,
+            session_factory=kwargs.get("session_factory"),
+            binance_client=kwargs.get("binance_client"),
+            settings=kwargs.get("settings"),
+            bot=kwargs.get("bot"),
+        )
+    )
 
     try:
         confirmed_caption = (
