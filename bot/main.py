@@ -207,40 +207,36 @@ async def main() -> None:
     logger.info("Scheduler started")
 
     # Register hourly market scan job (SCAN-02)
-    # Strategy generation runs as asyncio.create_task inside run_strategy_scan
-    # so it doesn't block the scheduler's execution window (RESEARCH.md Pitfall 6)
     scheduler.add_job(
-        lambda: asyncio.create_task(
-            run_strategy_scan(SessionLocal, binance_client, settings, bot, scheduler)
-        ),
+        run_strategy_scan,
         trigger=CronTrigger(hour="*", minute="5", timezone="UTC"),
         id="strategy_scan",
         replace_existing=True,
+        args=[SessionLocal, binance_client, settings, bot, scheduler],
     )
     # Register daily expiry check job (LIFE-02)
     scheduler.add_job(
-        lambda: asyncio.create_task(run_expiry_check(SessionLocal)),
+        run_expiry_check,
         trigger=CronTrigger(hour="2", minute="0", timezone="UTC"),
         id="expiry_check",
         replace_existing=True,
+        args=[SessionLocal],
     )
     # Register position monitoring job (MON-01 through MON-05)
     scheduler.add_job(
-        lambda: asyncio.create_task(
-            monitor_positions(SessionLocal, binance_client, settings, bot)
-        ),
+        monitor_positions,
         trigger=IntervalTrigger(seconds=60),
         id="position_monitor",
         replace_existing=True,
+        args=[SessionLocal, binance_client, settings, bot],
     )
     # Register daily summary job (TG-19)
     scheduler.add_job(
-        lambda: asyncio.create_task(
-            send_daily_summary(SessionLocal, binance_client, settings, bot)
-        ),
+        send_daily_summary,
         trigger=CronTrigger(hour=21, minute=0, timezone="Etc/GMT-5"),
         id="daily_summary",
         replace_existing=True,
+        args=[SessionLocal, binance_client, settings, bot],
     )
     logger.info(
         "APScheduler jobs registered: "
