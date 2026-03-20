@@ -137,11 +137,11 @@ Plans:
   3. `check_and_warn_daily_loss()` called after every position close — 80% warning reaches Telegram
   4. `check_rr_ratio()` called before signal dispatch — signals below min_rr_ratio are filtered
   5. `validate_liquidation_safety()` called before order placement — orders rejected if liquidation too close
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 07-01: Signal DB row creation in manager.py + R/R filter wiring + zones_data persistence fix
-- [ ] 07-02: DailyStats starting_balance + check_and_warn_daily_loss call site + validate_liquidation_safety call site + /help text fix
+- [ ] 07-01-PLAN.md — Signal DB row creation in manager.py + R/R filter wiring + zones_data persistence fix
+- [ ] 07-02-PLAN.md — DailyStats starting_balance + check_and_warn_daily_loss call site + validate_liquidation_safety call site + /help text fix
 
 ## Progress
 
