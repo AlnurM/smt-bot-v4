@@ -205,7 +205,7 @@ async def generate_strategy(
     ohlcv_df: pd.DataFrame,
     criteria: dict,
     api_key: str,
-    timeout: int = 180,
+    timeout: int = 480,
 ) -> dict:
     """Generate a backtested SMC+MACD/RSI strategy for the given symbol via Claude.
 
