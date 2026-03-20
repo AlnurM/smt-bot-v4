@@ -169,6 +169,10 @@ async def _handle_position_close(
     now = datetime.now(timezone.utc)
     today = now.date()
 
+    # Fetch balance for starting_balance — only used in INSERT path; ON CONFLICT preserves first value
+    account_info = await binance_client.futures_account()
+    day_starting_balance = float(account_info.get("totalWalletBalance", 0.0))
+
     async with session_factory() as session:
         # 3a. Create Trade record
         trade = Trade(
@@ -196,12 +200,14 @@ async def _handle_position_close(
             total_pnl=realized_pnl,
             trade_count=1,
             win_count=1 if close_reason == "tp" else 0,
+            starting_balance=day_starting_balance,  # set on first trade of day (INSERT only)
         ).on_conflict_do_update(
             index_elements=["date"],
             set_={
                 "total_pnl": DailyStats.total_pnl + realized_pnl,
                 "trade_count": DailyStats.trade_count + 1,
                 "win_count": DailyStats.win_count + (1 if close_reason == "tp" else 0),
+                # starting_balance NOT in set_ — preserves first-trade-of-day balance on conflict
             },
         )
         await session.execute(stmt)
@@ -214,9 +220,20 @@ async def _handle_position_close(
         if stats_row is not None and stats_row.trade_count > 0:
             stats_row.win_rate = stats_row.win_count / stats_row.trade_count
 
-        # 3d. Update RiskSettings (single row)
+        # TG-20: warn at 80% of daily loss limit
         risk_result = await session.execute(select(RiskSettings).limit(1))
         risk = risk_result.scalar_one_or_none()
+        if stats_row is not None and risk is not None:
+            from bot.telegram.notifications import check_and_warn_daily_loss
+            await check_and_warn_daily_loss(
+                bot,
+                settings.allowed_chat_id,
+                stats_row.total_pnl,
+                stats_row.starting_balance or day_starting_balance,
+                risk.daily_loss_limit_pct,
+            )
+
+        # 3d. Update RiskSettings (single row — reuse risk fetched above for TG-20)
         if risk is not None:
             if close_reason == "tp":
                 risk.win_streak_current += 1
