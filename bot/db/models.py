@@ -198,6 +198,7 @@ class SkippedCoin(Base):
 
 class Order(Base):
     __tablename__ = "orders"
+    __table_args__ = (sa.UniqueConstraint("signal_id", name="uq_orders_signal_id"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         PG_UUID(as_uuid=True),
@@ -253,6 +254,11 @@ class Position(Base):
         String(20), server_default=text("'open'"), nullable=False
     )
     environment: Mapped[str] = mapped_column(String(20), nullable=False)
+    sl_order_id: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    tp_order_id: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    is_dry_run: Mapped[bool] = mapped_column(
+        sa.Boolean, server_default=text("false"), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False
     )
