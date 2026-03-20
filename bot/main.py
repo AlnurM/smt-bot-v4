@@ -8,7 +8,7 @@ from aiogram import Bot, Dispatcher
 from sqlalchemy import text, select, func
 
 from bot.config import settings, configure_logging
-from bot.db.session import engine, SessionLocal
+from bot.db.session import engine, SessionLocal, _ensure_asyncpg_url
 from bot.db.models import Position
 from bot.exchange.client import create_binance_client
 from bot.scheduler.setup import create_scheduler
@@ -136,11 +136,23 @@ async def main() -> None:
     configure_logging(settings)
     logger.info("Bot starting...")
 
-    # --- Step 1: DB check ---
+    # --- Step 1: DB check + auto-migrate ---
     try:
         async with engine.begin() as conn:
             await conn.execute(text("SELECT 1"))
         logger.info("DB connection OK")
+
+        # Auto-run migrations on startup (safe for fresh DBs like Railway)
+        from alembic.config import Config as AlembicConfig
+        from alembic import command as alembic_command
+        alembic_cfg = AlembicConfig("alembic.ini")
+        alembic_cfg.set_main_option(
+            "sqlalchemy.url",
+            _ensure_asyncpg_url(settings.database_url.get_secret_value()),
+        )
+        alembic_command.upgrade(alembic_cfg, "head")
+        logger.info("DB migrations applied")
+
         await verify_migrations_current()
     except Exception as e:
         logger.error(f"DB check failed: {e}")
