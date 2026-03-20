@@ -162,6 +162,7 @@ class Signal(Base):
     )
     telegram_message_id: Mapped[Optional[int]] = mapped_column(sa.Integer, nullable=True)
     caption: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    zones_data: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False
     )
