@@ -1,7 +1,7 @@
 import sys
 from typing import Literal
 from loguru import logger
-from pydantic import SecretStr, ValidationError
+from pydantic import SecretStr, ValidationError, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -29,6 +29,15 @@ class Settings(BaseSettings):
         "ADAUSDT", "DOGEUSDT", "AVAXUSDT", "LINKUSDT", "MATICUSDT",
         "DOTUSDT", "LTCUSDT", "UNIUSDT", "ATOMUSDT", "NEARUSDT",
     ]
+
+    @field_validator("coin_whitelist", mode="before")
+    @classmethod
+    def parse_whitelist(cls, v):
+        """Accept comma-separated string from env: COIN_WHITELIST=BTCUSDT,ETHUSDT,..."""
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
+
     # Scanner config
     top_n_coins: int = 10
     min_volume_usdt: float = 50_000_000.0
