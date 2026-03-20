@@ -4,7 +4,7 @@ from __future__ import annotations
 import pandas as pd
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from binance import AsyncClient, HistoricalKlinesType
+from binance import AsyncClient
 from loguru import logger
 
 # Minimum candles required for a valid 6-month 15m backtest (6 * 30 * 24 * 4 = 17,280; 15,000 is the floor)
@@ -58,7 +58,6 @@ async def fetch_ohlcv_15m(
         symbol=symbol,
         interval=AsyncClient.KLINE_INTERVAL_15MINUTE,
         start_str=start_str,
-        klines_type=HistoricalKlinesType.FUTURES,
     )
     df = pd.DataFrame(
         klines,
