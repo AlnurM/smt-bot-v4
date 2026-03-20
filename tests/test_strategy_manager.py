@@ -164,3 +164,192 @@ async def test_criteria_snapshot_stored():
     added_obj = mock_session.add.call_args[0][0]
     assert added_obj.criteria_snapshot["strict_mode"] is False
     assert added_obj.criteria_snapshot["min_total_return_pct"] == 200.0
+
+
+# ---- SIG-01 / Gap 1 fix ----
+@pytest.mark.asyncio
+async def test_signal_row_created_in_db():
+    """Gap 1 fix: run_strategy_scan inserts a Signal ORM row and flushes for UUID
+    before calling send_signal_message. signal['id'] is set to the real row UUID."""
+    from unittest.mock import AsyncMock, MagicMock, patch, call
+    import uuid as _uuid
+    from bot.strategy.manager import run_strategy_scan
+
+    fake_signal_id = _uuid.uuid4()
+
+    # Build a mock Signal row returned by flush
+    mock_signal_row = MagicMock()
+    mock_signal_row.id = fake_signal_id
+
+    mock_session = AsyncMock()
+    mock_session.add = MagicMock()
+    mock_session.flush = AsyncMock()
+    mock_session.commit = AsyncMock()
+    mock_session.rollback = AsyncMock()
+    mock_session.execute = AsyncMock()
+    mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+    mock_session.__aexit__ = AsyncMock(return_value=False)
+
+    mock_session_factory = MagicMock(return_value=mock_session)
+
+    mock_binance = AsyncMock()
+    mock_binance.futures_account.return_value = {"totalWalletBalance": "1000.0"}
+
+    mock_settings = MagicMock()
+    mock_settings.coin_whitelist = ["BTCUSDT"]
+    mock_settings.top_n_coins = 1
+    mock_settings.min_volume_usdt = 0
+    mock_settings.backtest_period_months = 6
+    mock_settings.min_total_return_pct = 200.0
+    mock_settings.max_drawdown_pct = -12.0
+    mock_settings.min_win_rate_pct = 55.0
+    mock_settings.min_profit_factor = 1.8
+    mock_settings.min_trades = 30
+    mock_settings.min_avg_rr = 2.0
+    mock_settings.strict_mode = False
+    mock_settings.allowed_chat_id = 123
+    mock_settings.consecutive_empty_cycles_alert = 5
+    mock_settings.signal_expiry_minutes = 15
+
+    mock_bot = AsyncMock()
+    mock_scheduler = MagicMock()
+
+    fake_strategy_data = {
+        "timeframe": "15m",
+        "backtest": {"profit_factor": 2.0, "win_rate": 0.60},
+    }
+    fake_signal = {
+        "symbol": "BTCUSDT",
+        "direction": "long",
+        "entry_price": 50000.0,
+        "stop_loss": 49000.0,
+        "take_profit": 52000.0,
+        "rr_ratio": 2.0,
+        "timeframe": "15m",
+        "signal_strength": "high",
+        "reasoning": "test",
+        "zones": {},
+    }
+
+    mock_risk = MagicMock()
+    mock_risk.leverage = 5
+    mock_risk.current_stake_pct = 3.0
+    mock_risk.min_rr_ratio = 1.5
+
+    # session.execute returns: risk query, then coins_needing_strategy queries
+    mock_risk_result = MagicMock()
+    mock_risk_result.scalars.return_value.first.return_value = mock_risk
+    mock_active_result = MagicMock()
+    mock_active_result.scalars.return_value.all.return_value = []
+    mock_expired_result = MagicMock()
+    mock_expired_result.scalars.return_value.all.return_value = []
+    mock_session.execute.side_effect = [
+        mock_active_result, mock_expired_result,  # get_coins_needing_strategy
+        mock_risk_result,                          # risk settings query
+    ]
+
+    with (
+        patch("bot.scanner.market_scanner.get_top_n_by_volume", new=AsyncMock(return_value=["BTCUSDT"])),
+        patch("bot.scanner.market_scanner.fetch_ohlcv_15m", new=AsyncMock(return_value=MagicMock(empty=False))),
+        patch("bot.strategy.claude_engine.generate_strategy", new=AsyncMock(return_value=fake_strategy_data)),
+        patch("bot.strategy.filter.filter_strategy", return_value=MagicMock(passed=True)),
+        patch("bot.strategy.manager.save_strategy", new=AsyncMock()),
+        patch("bot.signals.generator.generate_signal", new=AsyncMock(return_value=fake_signal)),
+        patch("bot.charts.generator.generate_chart", new=AsyncMock(return_value=b"PNG")),
+        patch("bot.risk.manager.calculate_position_size", return_value={
+            "risk_usdt": 30.0, "sl_distance": 0.02, "position_usdt": 1500.0, "contracts": 0.1
+        }),
+        patch("bot.db.models.Signal", return_value=mock_signal_row) as mock_signal_cls,
+        patch("bot.telegram.dispatch.send_signal_message", new=AsyncMock(return_value=42)),
+        patch("bot.telegram.dispatch.schedule_signal_expiry"),
+    ):
+        await run_strategy_scan(
+            mock_session_factory, mock_binance, mock_settings,
+            bot=mock_bot, scheduler=mock_scheduler
+        )
+
+    # Signal row was added to session
+    mock_session.add.assert_called()
+    # flush was called to get UUID
+    mock_session.flush.assert_called()
+    # signal["id"] was set to the row's UUID string
+    assert fake_signal.get("id") == str(fake_signal_id)
+
+
+# ---- RISK-03 ----
+@pytest.mark.asyncio
+async def test_rr_filter_blocks_low_ratio():
+    """RISK-03: signals with rr_ratio below min_rr_ratio are not dispatched and no Signal row is created."""
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from bot.strategy.manager import run_strategy_scan
+
+    mock_session = AsyncMock()
+    mock_session.add = MagicMock()
+    mock_session.flush = AsyncMock()
+    mock_session.commit = AsyncMock()
+    mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+    mock_session.__aexit__ = AsyncMock(return_value=False)
+    mock_session_factory = MagicMock(return_value=mock_session)
+
+    mock_settings = MagicMock()
+    mock_settings.coin_whitelist = ["BTCUSDT"]
+    mock_settings.top_n_coins = 1
+    mock_settings.min_volume_usdt = 0
+    mock_settings.backtest_period_months = 6
+    mock_settings.min_total_return_pct = 200.0
+    mock_settings.max_drawdown_pct = -12.0
+    mock_settings.min_win_rate_pct = 55.0
+    mock_settings.min_profit_factor = 1.8
+    mock_settings.min_trades = 30
+    mock_settings.min_avg_rr = 2.0
+    mock_settings.strict_mode = False
+    mock_settings.allowed_chat_id = 123
+    mock_settings.consecutive_empty_cycles_alert = 5
+
+    low_rr_signal = {
+        "symbol": "BTCUSDT", "direction": "long",
+        "entry_price": 50000.0, "stop_loss": 49000.0, "take_profit": 50500.0,
+        "rr_ratio": 1.0,  # below min_rr_ratio=1.5
+        "timeframe": "15m",
+    }
+
+    mock_risk = MagicMock()
+    mock_risk.leverage = 5
+    mock_risk.current_stake_pct = 3.0
+    mock_risk.min_rr_ratio = 1.5
+
+    mock_risk_result = MagicMock()
+    mock_risk_result.scalars.return_value.first.return_value = mock_risk
+    mock_active_result = MagicMock()
+    mock_active_result.scalars.return_value.all.return_value = []
+    mock_expired_result = MagicMock()
+    mock_expired_result.scalars.return_value.all.return_value = []
+    mock_session.execute.side_effect = [
+        mock_active_result, mock_expired_result, mock_risk_result,
+    ]
+
+    mock_binance = AsyncMock()
+    mock_binance.futures_account.return_value = {"totalWalletBalance": "1000.0"}
+
+    with (
+        patch("bot.scanner.market_scanner.get_top_n_by_volume", new=AsyncMock(return_value=["BTCUSDT"])),
+        patch("bot.scanner.market_scanner.fetch_ohlcv_15m", new=AsyncMock(return_value=MagicMock(empty=False))),
+        patch("bot.strategy.claude_engine.generate_strategy", new=AsyncMock(return_value={"timeframe": "15m", "backtest": {"profit_factor": 2.0, "win_rate": 0.6}})),
+        patch("bot.strategy.filter.filter_strategy", return_value=MagicMock(passed=True)),
+        patch("bot.strategy.manager.save_strategy", new=AsyncMock()),
+        patch("bot.signals.generator.generate_signal", new=AsyncMock(return_value=low_rr_signal)),
+        patch("bot.charts.generator.generate_chart", new=AsyncMock(return_value=b"PNG")),
+        patch("bot.risk.manager.calculate_position_size", return_value={
+            "risk_usdt": 30.0, "sl_distance": 0.02, "position_usdt": 1500.0, "contracts": 0.1
+        }),
+        patch("bot.telegram.dispatch.send_signal_message") as mock_dispatch,
+    ):
+        await run_strategy_scan(
+            mock_session_factory, mock_binance, mock_settings,
+            bot=AsyncMock(), scheduler=MagicMock()
+        )
+
+    # send_signal_message must NOT have been called
+    mock_dispatch.assert_not_called()
+    # No Signal ORM row added
+    mock_session.add.assert_not_called()
