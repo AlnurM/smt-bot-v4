@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 05-01-PLAN.md (Order Executor: execute_order, dry-run, bracket SL/TP, /dryrun command)"
-last_updated: "2026-03-20T07:18:16.975Z"
+stopped_at: "Completed 05-02-PLAN.md (Position Monitor: monitor_positions, win streak, DailyStats, Telegram close notifications)"
+last_updated: "2026-03-20T07:25:31.985Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 18
-  completed_plans: 17
+  completed_plans: 18
   percent: 0
 ---
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-telegram-interface P02 | 5 | 3 tasks | 5 files |
 | Phase 05-order-execution-and-position-monitoring P00 | 2 | 2 tasks | 5 files |
 | Phase 05-order-execution-and-position-monitoring P01 | 7 | 2 tasks | 6 files |
+| Phase 05-order-execution-and-position-monitoring P02 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,8 @@ Recent decisions affecting current work:
 - [Phase 05-order-execution-and-position-monitoring]: mock_binance_client extended in-place (not replaced) — backward compatible with all existing Phase 2-4 tests
 - [Phase 05-order-execution-and-position-monitoring]: Lazy import of _bot_state inside execute_order() to avoid circular import: executor -> commands -> nothing from executor
 - [Phase 05-order-execution-and-position-monitoring]: asyncio.create_task() fires execute_order from handle_confirm after session.commit() — session exited before task runs, so SELECT FOR UPDATE sees committed status
+- [Phase 05-order-execution-and-position-monitoring]: Sequential position loop in monitor_positions (not asyncio.gather) prevents win_streak_current race condition when two positions close in same cycle
+- [Phase 05-order-execution-and-position-monitoring]: ORDER_DOES_NOT_EXIST (-2013) marks position 'orphaned' with no Telegram alert — testnet wipe scenario handled gracefully
 
 ### Pending Todos
 
@@ -139,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T07:18:16.971Z
-Stopped at: Completed 05-01-PLAN.md (Order Executor: execute_order, dry-run, bracket SL/TP, /dryrun command)
+Last session: 2026-03-20T07:25:31.982Z
+Stopped at: Completed 05-02-PLAN.md (Position Monitor: monitor_positions, win streak, DailyStats, Telegram close notifications)
 Resume file: None
