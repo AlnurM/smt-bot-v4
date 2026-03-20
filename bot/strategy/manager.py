@@ -260,8 +260,9 @@ async def run_strategy_scan(
                     if bot is not None:
                         from bot.signals.generator import generate_signal
                         from bot.charts.generator import generate_chart
-                        from bot.risk.manager import calculate_position_size
+                        from bot.risk.manager import calculate_position_size, check_rr_ratio
                         from bot.db.models import RiskSettings as RiskSettingsModel, Signal as SignalModel
+                        from bot.telegram.dispatch import send_signal_message, schedule_signal_expiry
 
                         MIN_NOTIONAL_USDT = 5.0
 
@@ -274,7 +275,15 @@ async def run_strategy_scan(
                             binance_client, symbol, strategy_data, ohlcv_df
                         )
                         if signal is not None:
-                            from bot.telegram.dispatch import send_signal_message, schedule_signal_expiry
+                            # R/R filter (RISK-03) — skip signal if below min threshold
+                            min_rr = risk_settings.min_rr_ratio if risk_settings else 1.5
+                            if not check_rr_ratio(signal["rr_ratio"], min_rr):
+                                logger.info(
+                                    f"Signal for {symbol} filtered: rr_ratio={signal['rr_ratio']:.2f} "
+                                    f"< min_rr_ratio={min_rr:.2f}"
+                                )
+                                continue  # skip to next candidate coin
+
                             chart_bytes = await generate_chart(
                                 ohlcv_df, signal, signal.get("zones", {})
                             )
@@ -294,6 +303,24 @@ async def run_strategy_scan(
                                 position_size.get("contracts", 0) * signal["entry_price"]
                                 < MIN_NOTIONAL_USDT
                             )
+
+                            # Insert Signal DB row BEFORE dispatch (Gap 1 fix — SIG-01..06)
+                            signal_row = SignalModel(
+                                symbol=signal["symbol"],
+                                timeframe=signal.get("timeframe", "15m"),
+                                direction=signal["direction"],
+                                entry_price=signal["entry_price"],
+                                stop_loss=signal["stop_loss"],
+                                take_profit=signal["take_profit"],
+                                rr_ratio=signal["rr_ratio"],
+                                signal_strength=signal.get("signal_strength"),
+                                reasoning=signal.get("reasoning"),
+                                status="pending",
+                            )
+                            session.add(signal_row)
+                            await session.flush()  # populates signal_row.id with real UUID
+                            signal["id"] = str(signal_row.id)  # dispatch.py uses signal["id"] in callback_data
+
                             message_id = await send_signal_message(
                                 bot,
                                 settings.allowed_chat_id,
@@ -303,31 +330,26 @@ async def run_strategy_scan(
                                 is_min_notional=is_min_notional,
                             )
                             if message_id != -1:
-                                # Persist telegram_message_id to Signal DB row
-                                db_signal_result = await session.execute(
-                                    select(SignalModel).order_by(
-                                        SignalModel.created_at.desc()
-                                    ).limit(1)
+                                signal_row.telegram_message_id = message_id
+                                # Save zones data for Pine Script generation (PINE-01)
+                                if signal.get("zones"):
+                                    from bot.reporting.pine_script import _zones_to_json_safe
+                                    signal_row.zones_data = _zones_to_json_safe(signal["zones"])
+                                await session.commit()
+                                schedule_signal_expiry(
+                                    scheduler,
+                                    bot,
+                                    settings.allowed_chat_id,
+                                    message_id,
+                                    str(signal_row.id),
+                                    session_factory,
+                                    timeout_minutes=getattr(
+                                        settings, "signal_expiry_minutes", 15
+                                    ),
                                 )
-                                db_signal = db_signal_result.scalars().first()
-                                if db_signal is not None:
-                                    db_signal.telegram_message_id = message_id
-                                    # Save zones data for Pine Script generation (PINE-01)
-                                    if signal.get("zones"):
-                                        from bot.reporting.pine_script import _zones_to_json_safe
-                                        db_signal.zones_data = _zones_to_json_safe(signal["zones"])
-                                    await session.commit()
-                                    schedule_signal_expiry(
-                                        scheduler,
-                                        bot,
-                                        settings.allowed_chat_id,
-                                        message_id,
-                                        str(db_signal.id),
-                                        session_factory,
-                                        timeout_minutes=getattr(
-                                            settings, "signal_expiry_minutes", 15
-                                        ),
-                                    )
+                            else:
+                                # Bot is paused — discard the Signal row, do not commit
+                                await session.rollback()
                 else:
                     await log_skipped_coin(session, symbol, strategy_data, filter_result)
 
