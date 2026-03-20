@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     win_streak_current: int = 0
 
     # Strategy criteria defaults (seeded to strategy_criteria table on first boot)
-    backtest_period_months: int = 6
+    backtest_period_months: int = 3  # 3 months fits Claude context; 6 months too large
     min_total_return_pct: float = 200.0
     max_drawdown_pct: float = -12.0
     min_win_rate_pct: float = 55.0
