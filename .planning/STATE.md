@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-03-PLAN.md (skipped coins loosen buttons + cmd_skipped drill-down)
-last_updated: "2026-03-20T08:17:54.916Z"
+stopped_at: Completed 07-01-PLAN.md (Signal ORM insert-before-dispatch + R/R filter wiring)
+last_updated: "2026-03-20T09:11:17.514Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
-  total_plans: 21
-  completed_plans: 21
+  total_plans: 23
+  completed_plans: 22
   percent: 0
 ---
 
@@ -71,6 +71,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 06-reporting-and-audit P01 | 3 | 2 tasks | 4 files |
 | Phase 06-reporting-and-audit P02 | 5 | 3 tasks | 9 files |
 | Phase 06-reporting-and-audit P03 | 3 | 2 tasks | 4 files |
+| Phase 07-integration-wiring-fix P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -140,6 +141,8 @@ Recent decisions affecting current work:
 - [Phase 06-reporting-and-audit]: LoosenCriteria prefix 'lc' + field name fits well within 64-byte Telegram callback_data limit
 - [Phase 06-reporting-and-audit]: send_skipped_coins_alert throttle logic moved inline — keyboard markup requires direct bot.send_message, not send_error_alert helper
 - [Phase 06-reporting-and-audit]: noop field on LoosenCriteria removes keyboard without DB write — avoids phantom criterion updates
+- [Phase 07-integration-wiring-fix]: session.flush() (not commit()) before dispatch gives UUID while allowing rollback if bot paused
+- [Phase 07-integration-wiring-fix]: R/R filter placed before ORM insert — no DB write for filtered signals, continue to next coin
 
 ### Pending Todos
 
@@ -153,6 +156,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T08:14:00.474Z
-Stopped at: Completed 06-03-PLAN.md (skipped coins loosen buttons + cmd_skipped drill-down)
+Last session: 2026-03-20T09:11:17.511Z
+Stopped at: Completed 07-01-PLAN.md (Signal ORM insert-before-dispatch + R/R filter wiring)
 Resume file: None
