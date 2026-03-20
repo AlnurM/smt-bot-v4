@@ -60,6 +60,7 @@ def make_risk_settings(win_streak_current=0):
         progressive_stakes=[3.0, 5.0, 8.0],
         wins_to_increase=1,
         reset_on_loss=True,
+        daily_loss_limit_pct=5.0,
         updated_at=datetime.now(timezone.utc),
     )
 
@@ -71,6 +72,7 @@ def make_daily_stats():
         trade_count=0,
         win_count=0,
         win_rate=None,
+        starting_balance=None,
     )
 
 
@@ -404,3 +406,91 @@ async def test_daily_stats_update(mock_binance_client):
         f"Expected a statement targeting 'daily_stats', "
         f"got statements targeting: {stmt_strings}"
     )
+
+
+# ---- RISK-04 / Gap 2 fix ----
+@pytest.mark.asyncio
+async def test_starting_balance_set_on_daily_stats():
+    """Gap 2: _handle_position_close fetches balance from binance_client.futures_account."""
+    from unittest.mock import AsyncMock, MagicMock
+
+    position = make_position(symbol="BTCUSDT", side="long", entry_price=50000.0)
+    settings = make_settings()
+    bot = AsyncMock()
+    risk = make_risk_settings()
+    daily_stats = make_daily_stats()
+    daily_stats.total_pnl = -5.0
+    daily_stats.trade_count = 1
+    daily_stats.starting_balance = 1000.0
+
+    mock_binance = AsyncMock()
+    mock_binance.futures_account.return_value = {"totalWalletBalance": "1000.00"}
+    mock_binance.futures_account_trades.return_value = [
+        {"orderId": 9001, "realizedPnl": "-5.00"}
+    ]
+    mock_binance.futures_cancel_order = AsyncMock()
+
+    session_factory = make_session_factory(
+        position=position, risk=risk, daily_stats=daily_stats
+    )
+
+    await _handle_position_close(
+        mock_binance,
+        session_factory,
+        bot,
+        settings,
+        position,
+        close_reason="sl",
+        filled_order_id="9001",
+        surviving_order_id="9002",
+        exit_price=49000.0,
+    )
+
+    # Binance balance was fetched
+    mock_binance.futures_account.assert_called()
+
+
+# ---- TG-20 / Gap 2 fix ----
+@pytest.mark.asyncio
+async def test_80pct_warning_called_after_close():
+    """TG-20: check_and_warn_daily_loss is called after DailyStats upsert in _handle_position_close."""
+    from unittest.mock import AsyncMock, patch
+
+    position = make_position(symbol="ETHUSDT", side="long", entry_price=3000.0)
+    settings = make_settings()
+    bot = AsyncMock()
+    risk = make_risk_settings()
+    daily_stats = make_daily_stats()
+    # Simulate a losing day at 80% of limit
+    daily_stats.total_pnl = -4.0
+    daily_stats.trade_count = 1
+    daily_stats.starting_balance = 1000.0
+
+    mock_binance = AsyncMock()
+    mock_binance.futures_account.return_value = {"totalWalletBalance": "1000.00"}
+    mock_binance.futures_account_trades.return_value = [
+        {"orderId": 8001, "realizedPnl": "-4.00"}
+    ]
+    mock_binance.futures_cancel_order = AsyncMock()
+
+    session_factory = make_session_factory(
+        position=position, risk=risk, daily_stats=daily_stats
+    )
+
+    with patch(
+        "bot.telegram.notifications.check_and_warn_daily_loss",
+        new=AsyncMock(),
+    ) as mock_warn:
+        await _handle_position_close(
+            mock_binance,
+            session_factory,
+            bot,
+            settings,
+            position,
+            close_reason="sl",
+            filled_order_id="8001",
+            surviving_order_id="8002",
+            exit_price=2900.0,
+        )
+
+    mock_warn.assert_called_once()

@@ -284,3 +284,47 @@ async def test_double_tap_protection_is_none(mock_binance_client, mock_signal, m
         )
 
     mock_binance_client.futures_create_order.assert_not_called()
+
+
+# ---- RISK-08 / Gap 3b fix ----
+@pytest.mark.asyncio
+async def test_liquidation_safety_blocks_order(mock_binance_client, mock_signal, mock_risk_settings):
+    """RISK-08: execute_order rejects the order when validate_liquidation_safety returns False."""
+    from unittest.mock import AsyncMock, patch
+
+    # Use high leverage — will cause liquidation safety failure with wide SL
+    mock_risk_settings.leverage = 125
+    mock_signal.stop_loss = 40000.0   # very wide SL — unsafe at 125x leverage
+    mock_signal.entry_price = 50000.0
+
+    factory, session = make_session_factory(
+        signal=mock_signal,
+        risk=mock_risk_settings,
+    )
+    settings = make_settings()
+    bot = AsyncMock()
+
+    with (
+        patch("bot.telegram.handlers.commands._bot_state", {"dry_run": False, "paused": False}),
+        patch("bot.order.executor._exchange_info_cache", {}),
+        patch(
+            "bot.order.executor.validate_liquidation_safety",
+            return_value=(False, 48000.0),
+        ),
+        patch(
+            "bot.order.executor.send_error_alert",
+            new_callable=AsyncMock,
+        ) as mock_alert,
+    ):
+        await execute_order(
+            signal_id=mock_signal.id,
+            session_factory=factory,
+            binance_client=mock_binance_client,
+            settings=settings,
+            bot=bot,
+        )
+
+    # No MARKET order placed
+    mock_binance_client.futures_create_order.assert_not_called()
+    # Error alert sent
+    mock_alert.assert_called()
