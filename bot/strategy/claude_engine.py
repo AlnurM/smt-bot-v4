@@ -262,25 +262,30 @@ async def generate_strategy(
         ClaudeRateLimitError: Anthropic API returned 429
         StrategySchemaError: Response could not be parsed or validated (after 1 retry)
     """
-    client = anthropic.AsyncAnthropic(api_key=api_key)
+    # Set HTTP-level timeout on the Anthropic client itself.
+    # Do NOT use asyncio.timeout — it kills the HTTP connection mid-stream,
+    # causing Claude to see "Client disconnected" (499).
+    client = anthropic.AsyncAnthropic(
+        api_key=api_key,
+        timeout=float(timeout),
+    )
     prompt = _build_prompt(symbol, criteria)
 
     logger.info(f"Calling Claude for {symbol} (Claude will fetch data himself, timeout={timeout}s)")
 
     try:
-        async with asyncio.timeout(timeout):
-            response = await client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=16384,
-                tools=[{"type": "code_execution_20250522", "name": "code_execution"}],
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    }
-                ],
-            )
-    except asyncio.TimeoutError:
+        response = await client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=16384,
+            tools=[{"type": "code_execution_20250522", "name": "code_execution"}],
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+        )
+    except anthropic.APITimeoutError:
         raise ClaudeTimeoutError(
             f"Claude strategy generation timed out after {timeout}s for {symbol}"
         )
@@ -298,19 +303,18 @@ async def generate_strategy(
     # Single retry — fresh API call
     logger.info(f"Retry: calling Claude again for {symbol}")
     try:
-        async with asyncio.timeout(timeout):
-            response_retry = await client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=16384,
-                tools=[{"type": "code_execution_20250522", "name": "code_execution"}],
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    }
-                ],
-            )
-    except asyncio.TimeoutError:
+        response_retry = await client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=16384,
+            tools=[{"type": "code_execution_20250522", "name": "code_execution"}],
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+        )
+    except anthropic.APITimeoutError:
         raise ClaudeTimeoutError(
             f"Claude retry timed out after {timeout}s for {symbol}"
         )
