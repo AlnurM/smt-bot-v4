@@ -16,9 +16,9 @@ from aiogram.types import CallbackQuery, Message
 from loguru import logger
 from sqlalchemy import select
 
-from bot.db.models import Signal
+from bot.db.models import Signal, StrategyCriteria
 from bot.order.executor import execute_order
-from bot.telegram.callbacks import SignalAction
+from bot.telegram.callbacks import SignalAction, LoosenCriteria
 
 router = Router()
 
@@ -239,3 +239,74 @@ async def handle_pine(
     except Exception as exc:
         logger.exception(f"Pine Script generation failed for signal {signal.id}: {exc}")
         await callback.message.answer("Ошибка генерации Pine Script. Проверьте логи.")
+
+
+# ---------------------------------------------------------------------------
+# handle_loosen_criteria (SKIP-04)
+# ---------------------------------------------------------------------------
+
+# Loosen adjustment rules: for each field, compute the new loosened value
+_LOOSEN_RULES: dict[str, callable] = {
+    "min_total_return_pct": lambda v: max(v * 0.75, 50.0),   # reduce by 25%, floor 50%
+    "max_drawdown_pct":     lambda v: v * 1.25,               # more negative allowed (e.g. -12 -> -15)
+    "min_win_rate_pct":     lambda v: max(v - 5.0, 30.0),     # reduce by 5 points, floor 30%
+    "min_profit_factor":    lambda v: max(v - 0.2, 1.0),      # reduce by 0.2, floor 1.0
+    "min_avg_rr":           lambda v: max(v - 0.5, 1.0),      # reduce by 0.5, floor 1.0
+    "min_trades":           lambda v: max(int(v) - 10, 5),    # reduce by 10, floor 5
+}
+
+_CRITERION_LABELS_RU = {
+    "min_total_return_pct": "Мин. доходность",
+    "max_drawdown_pct": "Макс. просадка",
+    "min_win_rate_pct": "Win Rate",
+    "min_profit_factor": "Profit Factor",
+    "min_avg_rr": "R/R Ratio",
+    "min_trades": "Мин. сделок",
+}
+
+
+@router.callback_query(LoosenCriteria.filter())
+async def handle_loosen_criteria(
+    callback: CallbackQuery,
+    callback_data: LoosenCriteria,
+    **kwargs,
+) -> None:
+    """Loosen a single strategy criterion and confirm to user.
+
+    Triggered by inline buttons on the consecutive-skip alert (SKIP-04).
+    Uses the same StrategyCriteria update pattern as /criteria command.
+    """
+    await callback.answer()
+
+    if callback_data.field == "noop":
+        await callback.message.edit_reply_markup(reply_markup=None)
+        await callback.message.answer("Продолжаем ожидание. Критерии не изменены.")
+        return
+
+    field = callback_data.field
+    if field not in _LOOSEN_RULES:
+        await callback.message.answer(f"⚠️ Неизвестный критерий: {field}")
+        return
+
+    session_factory = kwargs.get("session_factory")
+    async with session_factory() as session:
+        result = await session.execute(select(StrategyCriteria).limit(1))
+        criteria = result.scalars().first()
+
+        if criteria is None:
+            await callback.message.answer("⚠️ Таблица критериев пуста.")
+            return
+
+        current_value = getattr(criteria, field)
+        new_value = _LOOSEN_RULES[field](current_value)
+        setattr(criteria, field, new_value)
+        criteria.updated_at = datetime.now(timezone.utc)
+        await session.commit()
+
+    label = _CRITERION_LABELS_RU.get(field, field)
+    await callback.message.edit_reply_markup(reply_markup=None)
+    await callback.message.answer(
+        f"✅ {label} ослаблен: {current_value} → {new_value:.2f}\n"
+        f"Изменение вступит в силу в следующем цикле сканирования."
+    )
+    logger.info(f"Criterion loosened via button: {field} {current_value} -> {new_value}")

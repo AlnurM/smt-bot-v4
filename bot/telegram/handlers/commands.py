@@ -268,24 +268,32 @@ async def cmd_strategies(message: Message, session_factory, **kwargs) -> None:
 
 @router.message(Command("skipped"))
 async def cmd_skipped(message: Message, session_factory, **kwargs) -> None:
-    """Show skipped coins. Usage: /skipped [24h|7d|SYMBOL]
+    """Show skipped coins with compact list or drill-down.
 
-    Default: last 24h.
+    Usage:
+      /skipped           — compact list, last 24h (symbol, failed count, time)
+      /skipped week      — compact list, last 7 days
+      /skipped XRPUSDT   — drill-down for specific coin (backtest + criteria)
     """
     try:
         parts = (message.text or "").split()
         filter_symbol: str | None = None
         hours_back = 24
+        drill_down = False
 
         if len(parts) >= 2:
             arg = parts[1].strip()
-            if arg.endswith("h") and arg[:-1].isdigit():
+            if arg.lower() == "week":
+                hours_back = 24 * 7
+            elif arg.endswith("h") and arg[:-1].isdigit():
                 hours_back = int(arg[:-1])
             elif arg.endswith("d") and arg[:-1].isdigit():
                 hours_back = int(arg[:-1]) * 24
-            elif arg.isupper() or arg.endswith("USDT"):
+            else:
+                # Symbol drill-down
                 filter_symbol = arg.upper()
-                hours_back = 0  # symbol filter — no time filter
+                hours_back = 0
+                drill_down = True
 
         async with session_factory() as session:
             query = select(SkippedCoin)
@@ -300,15 +308,54 @@ async def cmd_skipped(message: Message, session_factory, **kwargs) -> None:
             coins = result.scalars().all()
 
         if not coins:
-            label = filter_symbol or f"за {hours_back}ч"
+            label = filter_symbol or (f"за {hours_back}ч" if hours_back <= 24 else "за 7 дн.")
             await message.answer(f"Нет пропущенных монет ({label}).")
             return
 
-        label = filter_symbol or f"за {hours_back}ч"
-        lines = [f"⛔ Пропущенные монеты ({label}):\n"]
-        for coin in coins:
-            criteria_str = ", ".join(coin.failed_criteria or []) or "N/A"
-            lines.append(f"{coin.symbol}: {criteria_str}")
+        if drill_down and filter_symbol:
+            # Full drill-down: symbol history with backtest details
+            label = f"История: {filter_symbol}"
+            lines = [f"⛔ {label}\n"]
+            for coin in coins:
+                ts = coin.created_at.strftime("%m-%d %H:%M")
+                criteria_str = ", ".join(coin.failed_criteria or []) or "N/A"
+                lines.append(f"🕐 {ts} | Провалено: {criteria_str}")
+
+                # Backtest results if available
+                br = coin.backtest_results or {}
+                if br:
+                    ret = br.get("total_return_pct")
+                    dd = br.get("max_drawdown_pct")
+                    wr = br.get("win_rate")
+                    pf = br.get("profit_factor")
+                    trades = br.get("total_trades")
+                    parts_br = []
+                    if ret is not None:
+                        parts_br.append(f"Доходность: {ret:+.1f}%")
+                    if dd is not None:
+                        parts_br.append(f"Просадка: {dd:.1f}%")
+                    if wr is not None:
+                        wr_pct = wr * 100 if wr <= 1.0 else wr
+                        parts_br.append(f"WR: {wr_pct:.0f}%")
+                    if pf is not None:
+                        parts_br.append(f"PF: {pf:.2f}")
+                    if trades is not None:
+                        parts_br.append(f"Сделок: {trades}")
+                    if parts_br:
+                        lines.append("  " + " | ".join(parts_br))
+                lines.append("")
+        else:
+            # Compact list: one line per coin
+            label = filter_symbol or (f"за {hours_back}ч" if hours_back <= 24 else "за 7 дн.")
+            lines = [f"⛔ Пропущенные монеты ({label}):\n"]
+            for coin in coins:
+                ts = coin.created_at.strftime("%m-%d %H:%M")
+                failed_count = len(coin.failed_criteria or [])
+                criteria_str = ", ".join(coin.failed_criteria or []) or "N/A"
+                lines.append(
+                    f"{coin.symbol} | {failed_count} крит. | {ts}\n"
+                    f"  ↳ {criteria_str}"
+                )
 
         await message.answer("\n".join(lines))
     except Exception as e:
