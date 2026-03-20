@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-20T07:41:56.370Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-20T08:06:48.361Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 21
+  completed_plans: 19
   percent: 0
 ---
 
@@ -68,6 +68,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05-order-execution-and-position-monitoring P00 | 2 | 2 tasks | 5 files |
 | Phase 05-order-execution-and-position-monitoring P01 | 7 | 2 tasks | 6 files |
 | Phase 05-order-execution-and-position-monitoring P02 | 5 | 2 tasks | 4 files |
+| Phase 06-reporting-and-audit P01 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,8 @@ Recent decisions affecting current work:
 - [Phase 05-order-execution-and-position-monitoring]: asyncio.create_task() fires execute_order from handle_confirm after session.commit() — session exited before task runs, so SELECT FOR UPDATE sees committed status
 - [Phase 05-order-execution-and-position-monitoring]: Sequential position loop in monitor_positions (not asyncio.gather) prevents win_streak_current race condition when two positions close in same cycle
 - [Phase 05-order-execution-and-position-monitoring]: ORDER_DOES_NOT_EXIST (-2013) marks position 'orphaned' with no Telegram alert — testnet wipe scenario handled gracefully
+- [Phase 06-reporting-and-audit]: pnl_sign_fmt uses abs(pnl) with explicit sign prefix — avoids Python float formatting placing minus after dollar sign
+- [Phase 06-reporting-and-audit]: Etc/GMT-5 timezone used in APScheduler CronTrigger for UTC+5 (inverted POSIX convention)
 
 ### Pending Todos
 
@@ -142,6 +145,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T07:41:56.366Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-reporting-and-audit/06-CONTEXT.md
+Last session: 2026-03-20T08:06:48.358Z
+Stopped at: Completed 06-01-PLAN.md
+Resume file: None

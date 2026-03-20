@@ -118,12 +118,12 @@ Plans:
   2. Tapping "Pine Script" on a signal message or running `/chart SYMBOL` returns a copy-paste-ready Pine Script v5 block in Telegram
   3. `/skipped` returns a list of coins skipped in the last 24h or 7d with the specific criteria that caused each rejection
   4. An alert fires in Telegram when no coins pass criteria across multiple consecutive scan cycles
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: Daily summary report (scheduled 21:00, PnL/trades/win rate/stake aggregation) + TG-19 scheduler job
-- [ ] 06-02: Pine Script generator (v5 output with entry/SL/TP, OB zones, FVG zones, BOS/CHOCH lines) + inline button wiring + `/chart` command
-- [ ] 06-03: Skipped coins tracking (log symbol/results/failed criteria, optional notification, `/skipped` with time filters, consecutive-skip alert)
+- [ ] 06-01-PLAN.md — Daily summary report (send_daily_summary, scheduled 21:00 UTC+5, PnL/trades/win rate/stake/best-worst trade/strategy counts) + main.py job
+- [ ] 06-02-PLAN.md — Pine Script generator (v5, hardcoded OB/FVG/BOS/CHOCH/entry/SL/TP/MACD/RSI), Alembic migration 0005 (Signal.zones_data JSONB), handle_pine + cmd_chart wiring
+- [ ] 06-03-PLAN.md — Skipped coins enhancements: LoosenCriteria callback, loosen buttons on consecutive-skip alert, handle_loosen_criteria handler, enhanced cmd_skipped (compact + drill-down)
 
 ## Progress
 
@@ -137,4 +137,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Signal and Risk | 5/5 | Complete   | 2026-03-19 |
 | 4. Telegram Interface | 3/3 | Complete   | 2026-03-19 |
 | 5. Order Execution and Position Monitoring | 3/3 | Complete   | 2026-03-20 |
-| 6. Reporting and Audit | 0/3 | Not started | - |
+| 6. Reporting and Audit | 1/3 | In Progress|  |
