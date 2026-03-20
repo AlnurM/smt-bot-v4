@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-20T08:06:48.361Z"
+stopped_at: Completed 06-02-PLAN.md (Pine Script generation)
+last_updated: "2026-03-20T08:09:14.288Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 21
-  completed_plans: 19
+  completed_plans: 20
   percent: 0
 ---
 
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05-order-execution-and-position-monitoring P01 | 7 | 2 tasks | 6 files |
 | Phase 05-order-execution-and-position-monitoring P02 | 5 | 2 tasks | 4 files |
 | Phase 06-reporting-and-audit P01 | 3 | 2 tasks | 4 files |
+| Phase 06-reporting-and-audit P02 | 5 | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,9 @@ Recent decisions affecting current work:
 - [Phase 05-order-execution-and-position-monitoring]: ORDER_DOES_NOT_EXIST (-2013) marks position 'orphaned' with no Telegram alert — testnet wipe scenario handled gracefully
 - [Phase 06-reporting-and-audit]: pnl_sign_fmt uses abs(pnl) with explicit sign prefix — avoids Python float formatting placing minus after dollar sign
 - [Phase 06-reporting-and-audit]: Etc/GMT-5 timezone used in APScheduler CronTrigger for UTC+5 (inverted POSIX convention)
+- [Phase 06-reporting-and-audit]: generate_pine_script() accepts individual params (not Signal ORM) — pure function with no DB dependency, fully unit-testable
+- [Phase 06-reporting-and-audit]: _zones_to_json_safe() uses hasattr(__dataclass_fields__) duck-typing — handles both dataclass instances from generator and plain dicts from DB JSONB
+- [Phase 06-reporting-and-audit]: Pine Script zones capped at 5 per type — Pine editor performance degrades with many box/line objects
 
 ### Pending Todos
 
@@ -145,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T08:06:48.358Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-03-20T08:09:14.285Z
+Stopped at: Completed 06-02-PLAN.md (Pine Script generation)
 Resume file: None

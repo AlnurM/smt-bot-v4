@@ -83,9 +83,9 @@
 
 ### Pine Script
 
-- [ ] **PINE-01**: Pine Script v5 generated per signal with entry/SL/TP levels, OB zones, FVG zones, BOS/CHOCH lines
-- [ ] **PINE-02**: Pine Script sent via Telegram on `/chart SYMBOL` command or inline button
-- [ ] **PINE-03**: Script is copy-paste ready for TradingView Pine Editor
+- [x] **PINE-01**: Pine Script v5 generated per signal with entry/SL/TP levels, OB zones, FVG zones, BOS/CHOCH lines
+- [x] **PINE-02**: Pine Script sent via Telegram on `/chart SYMBOL` command or inline button
+- [x] **PINE-03**: Script is copy-paste ready for TradingView Pine Editor
 
 ### Telegram Bot
 
@@ -107,7 +107,7 @@
 - [x] **TG-16**: `/settings` — general settings (top-N, timeframes, review interval)
 - [x] **TG-17**: `/pause` and `/resume` — pause/resume signal generation
 - [x] **TG-18**: `/help` — full command reference
-- [ ] **TG-19**: Daily summary at 21:00 — PnL, trades, win rate, current stake
+- [x] **TG-19**: Daily summary at 21:00 — PnL, trades, win rate, current stake
 - [x] **TG-20**: Warning at 80% of daily loss limit
 - [x] **TG-21**: Error notifications — API errors, order failures, insufficient balance
 - [x] **TG-22**: Notification when strategy criteria causes all coins to be skipped repeatedly
@@ -259,10 +259,10 @@
 | MON-03 | Phase 5 | Complete |
 | MON-04 | Phase 5 | Complete |
 | MON-05 | Phase 5 | Complete |
-| TG-19 | Phase 6 | Pending |
-| PINE-01 | Phase 6 | Pending |
-| PINE-02 | Phase 6 | Pending |
-| PINE-03 | Phase 6 | Pending |
+| TG-19 | Phase 6 | Complete |
+| PINE-01 | Phase 6 | Complete |
+| PINE-02 | Phase 6 | Complete |
+| PINE-03 | Phase 6 | Complete |
 | SKIP-01 | Phase 6 | Pending |
 | SKIP-02 | Phase 6 | Pending |
 | SKIP-03 | Phase 6 | Pending |
