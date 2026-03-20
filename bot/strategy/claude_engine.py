@@ -218,29 +218,24 @@ async def generate_strategy(
         StrategySchemaError: Response could not be parsed or validated (after 1 retry)
     """
     client = anthropic.AsyncAnthropic(api_key=api_key)
-    csv_bytes = ohlcv_df.to_csv(index=False).encode("utf-8")
+    csv_text = ohlcv_df.to_csv(index=False)
     prompt = _build_prompt(symbol, criteria)
 
-    logger.info(f"Uploading OHLCV CSV for {symbol} ({len(ohlcv_df)} rows) to Files API")
-    file_obj = await client.beta.files.upload(
-        file=("ohlcv.csv", csv_bytes, "text/csv"),
-    )
-    file_id = file_obj.id
+    # Embed CSV directly in the prompt — simpler and more reliable than Files API
+    full_prompt = f"{prompt}\n\nOHLCV DATA (CSV format, {len(ohlcv_df)} rows):\n\n{csv_text}"
+
+    logger.info(f"Calling Claude for {symbol} ({len(ohlcv_df)} rows, {len(csv_text)//1024}KB CSV)")
 
     try:
         async with asyncio.timeout(timeout):
-            response = await client.beta.messages.create(
+            response = await client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=8192,
-                betas=["files-api-2025-04-14"],
-                tools=[{"type": "code_execution_20250825", "name": "code_execution"}],
+                tools=[{"type": "code_execution_20250522", "name": "code_execution"}],
                 messages=[
                     {
                         "role": "user",
-                        "content": [
-                            {"type": "container_upload", "file_id": file_id},
-                            {"type": "text", "text": prompt},
-                        ],
+                        "content": full_prompt,
                     }
                 ],
             )
@@ -250,12 +245,6 @@ async def generate_strategy(
         )
     except anthropic.RateLimitError as e:
         raise ClaudeRateLimitError(f"Claude rate limit hit for {symbol}: {e}")
-    finally:
-        # Always clean up the uploaded file regardless of success or failure
-        try:
-            await client.beta.files.delete(file_id)
-        except Exception as cleanup_err:
-            logger.warning(f"Failed to delete Files API file {file_id}: {cleanup_err}")
 
     # First parse attempt
     try:
@@ -267,25 +256,16 @@ async def generate_strategy(
 
     # Single retry — fresh API call (per RESEARCH.md anti-pattern: no multi-turn retry)
     logger.info(f"Retry: calling Claude again for {symbol}")
-    csv_bytes_retry = ohlcv_df.to_csv(index=False).encode("utf-8")
-    file_obj_retry = await client.beta.files.upload(
-        file=("ohlcv.csv", csv_bytes_retry, "text/csv"),
-    )
-    file_id_retry = file_obj_retry.id
     try:
         async with asyncio.timeout(timeout):
-            response_retry = await client.beta.messages.create(
+            response_retry = await client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=8192,
-                betas=["files-api-2025-04-14"],
-                tools=[{"type": "code_execution_20250825", "name": "code_execution"}],
+                tools=[{"type": "code_execution_20250522", "name": "code_execution"}],
                 messages=[
                     {
                         "role": "user",
-                        "content": [
-                            {"type": "container_upload", "file_id": file_id_retry},
-                            {"type": "text", "text": prompt},
-                        ],
+                        "content": full_prompt,
                     }
                 ],
             )
@@ -293,10 +273,7 @@ async def generate_strategy(
         raise ClaudeTimeoutError(
             f"Claude retry timed out after {timeout}s for {symbol}"
         )
-    finally:
-        try:
-            await client.beta.files.delete(file_id_retry)
-        except Exception as cleanup_err:
+    except Exception as cleanup_err:
             logger.warning(f"Failed to delete retry file {file_id_retry}: {cleanup_err}")
 
     return _parse_strategy_response(response_retry)
