@@ -14,6 +14,7 @@ from bot.exchange.client import create_binance_client
 from bot.scheduler.setup import create_scheduler
 from bot.strategy.manager import run_strategy_scan, run_expiry_check
 from bot.monitor.position import monitor_positions
+from bot.reporting.daily_summary import send_daily_summary
 from bot.telegram.middleware import AllowedChatMiddleware
 from bot.telegram.handlers.commands import router as commands_router
 from bot.telegram.handlers.callbacks import router as callbacks_router
@@ -205,9 +206,19 @@ async def main() -> None:
         id="position_monitor",
         replace_existing=True,
     )
+    # Register daily summary job (TG-19)
+    scheduler.add_job(
+        lambda: asyncio.create_task(
+            send_daily_summary(SessionLocal, binance_client, settings, bot)
+        ),
+        trigger=CronTrigger(hour=21, minute=0, timezone="Etc/GMT-5"),
+        id="daily_summary",
+        replace_existing=True,
+    )
     logger.info(
         "APScheduler jobs registered: "
-        "strategy_scan (hourly :05) + expiry_check (02:00 UTC) + position_monitor (every 60s)"
+        "strategy_scan (hourly :05) + expiry_check (02:00 UTC) + "
+        "position_monitor (every 60s) + daily_summary (21:00 UTC+5)"
     )
 
     # --- Step 6: Startup notification ---
