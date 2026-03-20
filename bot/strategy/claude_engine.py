@@ -218,6 +218,18 @@ async def generate_strategy(
         StrategySchemaError: Response could not be parsed or validated (after 1 retry)
     """
     client = anthropic.AsyncAnthropic(api_key=api_key)
+
+    # Truncate data to fit within Claude's 200k token context window.
+    # ~1000 rows of 15m OHLCV ≈ 12k tokens. Safe limit: ~5000 rows (~60k tokens),
+    # leaving room for prompt + code_execution output.
+    MAX_ROWS = 5000
+    if len(ohlcv_df) > MAX_ROWS:
+        logger.warning(
+            f"Truncating OHLCV for {symbol}: {len(ohlcv_df)} → {MAX_ROWS} rows "
+            f"(last {MAX_ROWS} candles to fit context window)"
+        )
+        ohlcv_df = ohlcv_df.tail(MAX_ROWS).reset_index(drop=True)
+
     csv_text = ohlcv_df.to_csv(index=False)
     prompt = _build_prompt(symbol, criteria)
 
