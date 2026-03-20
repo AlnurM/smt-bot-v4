@@ -102,11 +102,12 @@ Plans:
   3. When SL or TP is hit, Telegram receives a notification with final PnL and close reason within one monitoring cycle
   4. A second Confirm tap (double-tap) on the same signal produces no additional order due to the DB unique constraint
   5. Order errors (MIN_NOTIONAL failure, insufficient balance, API errors) surface to Telegram immediately with a descriptive message
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: Order Executor (isolated-margin entry, SL/TP bracket, all Binance error codes, partial fill handling, dry-run mode, environment validation)
-- [ ] 05-02: Position Monitor (polling + WebSocket fallback, SL/TP hit detection, close notification, win streak update, daily stats aggregation, trade record creation)
+- [ ] 05-00-PLAN.md — Wave 0: Alembic migration 0004 (Position.sl_order_id/tp_order_id/is_dry_run, Order unique constraint), ORM model updates, extended mock_binance_client fixture, RED test scaffolds for executor and monitor
+- [ ] 05-01-PLAN.md — Order Executor (isolated-margin entry, STOP_MARKET + TAKE_PROFIT_MARKET bracket, all Binance error codes, exchange_info cache, dry-run mode, /dryrun command, handle_confirm trigger)
+- [ ] 05-02-PLAN.md — Position Monitor (60-second APScheduler polling, SL/TP fill detection, surviving bracket cancel, Trade record, win streak update, DailyStats UPSERT, Telegram close notification, main.py job registration)
 
 ### Phase 6: Reporting and Audit
 **Goal**: The trader has full visibility into daily performance, skipped coins, per-signal decisions, and strategy review schedules — and TradingView cross-check is available via Pine Script on every signal
@@ -135,5 +136,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Strategy Pipeline | 4/4 | Complete   | 2026-03-19 |
 | 3. Signal and Risk | 5/5 | Complete   | 2026-03-19 |
 | 4. Telegram Interface | 3/3 | Complete   | 2026-03-19 |
-| 5. Order Execution and Position Monitoring | 0/2 | Not started | - |
+| 5. Order Execution and Position Monitoring | 0/3 | Not started | - |
 | 6. Reporting and Audit | 0/3 | Not started | - |
