@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 06-03-PLAN.md (skipped coins loosen buttons + cmd_skipped drill-down)
-last_updated: "2026-03-20T08:14:00.477Z"
+last_updated: "2026-03-20T08:17:54.916Z"
 last_activity: 2026-03-19 — Completed Plan 01-01 (scaffold, config, Docker stack, pytest infra)
 progress:
   total_phases: 6
